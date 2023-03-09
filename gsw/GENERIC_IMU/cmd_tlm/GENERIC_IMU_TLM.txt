@@ -24,9 +24,12 @@ TELEMETRY GENERIC_IMU GENERIC_IMU_DATA_TLM LITTLE_ENDIAN "GENERIC_IMU_Device_tlm
   APPEND_ITEM    CCSDS_SUBSECS        16 UINT         "CCSDS Telemetry Secondary Header (subseconds)"
   # GENERIC_IMU_Device_Data_tlm_t
   APPEND_ITEM    DEVICE_COUNTER       32 UINT         "Reported Device Command Counter"
-  APPEND_ITEM    RAW_GENERIC_IMU_X         16 UINT         "Raw generic_imu data x component (1-65535)"
-  APPEND_ITEM    RAW_GENERIC_IMU_Y         16 UINT         "Raw generic_imu data y component (1-65535)"
-  APPEND_ITEM    RAW_GENERIC_IMU_Z         16 UINT         "Raw generic_imu data z component (1-65535)"
+  APPEND_ITEM    X_LINEAR_ACCELERATION     32 FLOAT        "Linear acceleration in the x-direction"
+  APPEND_ITEM    X_ANGULAR_ACCELERATION    32 FLOAT        "Angular acceleration in the x-direction"
+  APPEND_ITEM    Y_LINEAR_ACCELERATION     32 FLOAT        "Linear acceleration in the y-direction"
+  APPEND_ITEM    Y_ANGULAR_ACCELERATION    32 FLOAT        "Angular acceleration in the y-direction"
+  APPEND_ITEM    Z_LINEAR_ACCELERATION     32 FLOAT        "Linear acceleration in the z-direction"
+  APPEND_ITEM    Z_ANGULAR_ACCELERATION    32 FLOAT        "Angular acceleration in the z-direction"
 #  APPEND_ITEM    PAD                  16 UINT         "Because the packed struct it came from has a stride address of 32 and cFS does not serialize"
   APPEND_ITEM    GENERIC_IMU_X              0 DERIVED      "Generic_imu data unit vector x component (-1.0 to 1.0)"
     GENERIC_READ_CONVERSION_START FLOAT 32
