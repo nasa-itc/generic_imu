@@ -30,7 +30,7 @@ add_library(generic_imu_sim SHARED ${generic_imu_sim_src} ${generic_imu_sim_inc}
 target_link_libraries(generic_imu_sim ${generic_imu_sim_libs})
 install(TARGETS generic_imu_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
-add_executable(nos3-generic_imu-simulator src/generic_imu_sim.cpp)
-target_link_libraries(nos3-generic_imu-simulator generic_imu_sim ${generic_imu_sim_libs})
-install(TARGETS nos3-generic_imu-simulator RUNTIME DESTINATION bin)
+add_executable(nos3-generic-imu-simulator src/generic_imu_sim.cpp)
+target_link_libraries(nos3-generic-imu-simulator generic_imu_sim ${generic_imu_sim_libs})
+install(TARGETS nos3-generic-imu-simulator RUNTIME DESTINATION bin)
 install(TARGETS generic_imu_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
