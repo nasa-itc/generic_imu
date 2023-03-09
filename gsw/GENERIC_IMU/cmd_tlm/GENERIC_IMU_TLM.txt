@@ -31,15 +31,4 @@ TELEMETRY GENERIC_IMU GENERIC_IMU_DATA_TLM LITTLE_ENDIAN "GENERIC_IMU_Device_tlm
   APPEND_ITEM    Z_LINEAR_ACCELERATION     32 FLOAT        "Linear acceleration in the z-direction"
   APPEND_ITEM    Z_ANGULAR_ACCELERATION    32 FLOAT        "Angular acceleration in the z-direction"
 #  APPEND_ITEM    PAD                  16 UINT         "Because the packed struct it came from has a stride address of 32 and cFS does not serialize"
-  APPEND_ITEM    GENERIC_IMU_X              0 DERIVED      "Generic_imu data unit vector x component (-1.0 to 1.0)"
-    GENERIC_READ_CONVERSION_START FLOAT 32
-      (packet.read("RAW_GENERIC_IMU_X") - 32768.0)/32767.0
-    GENERIC_READ_CONVERSION_END
-  APPEND_ITEM    GENERIC_IMU_Y              0 DERIVED      "Generic_imu data unit vector y component (-1.0 to 1.0)"
-    GENERIC_READ_CONVERSION_START FLOAT 32
-      (packet.read("RAW_GENERIC_IMU_Y") - 32768.0)/32767.0
-    GENERIC_READ_CONVERSION_END
-  APPEND_ITEM    GENERIC_IMU_Z              0 DERIVED      "Generic_imu data unit vector z component (-1.0 to 1.0)"
-    GENERIC_READ_CONVERSION_START FLOAT 32
-      (packet.read("RAW_GENERIC_IMU_Z") - 32768.0)/32767.0
-    GENERIC_READ_CONVERSION_END
+

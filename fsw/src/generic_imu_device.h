@@ -56,9 +56,6 @@ typedef struct
 typedef struct
 {
     uint32_t  DeviceCounter;
-//    uint16_t  DeviceDataX;
-//    uint16_t  DeviceDataY;
-//    uint16_t  DeviceDataZ;
     float     XLinearAcc;
     float     XAngularAcc;
     float     YLinearAcc;
