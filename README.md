@@ -59,6 +59,110 @@ Response formats are as follows:
     * X component of generic_imu data
   - uint16, 0xBEEF
 
+# Device Communications (CAN)
+
+## Communications
+The NOS3 generic inertial measurement unit communicates using the CAN protocol.
+
+### Data Format
+The data structure for communications is explained below:
+- Character transmission (unsigned char):  (Byte_0(LSB)) --> to communications channel
+- Floating data transmission (float):  Float codification according to IEEE 754-1985 standard for single-precision floating 32 bits:  (sign|exponent|fraction) = (Byte_3(MSB)|Byte_2|Byte_1|Byte_0(LSB)) --> to communications channel
+    - Floating value = s x 2^e x m, where:
+        - Sign(s): 1 bit (0 = positive, 1 = negative)
+        - Exponent: 8 bits (e = Exponent - 127)
+        - Fraction: 23 bits (m = 1.Fraction)
+
+### Frame Format
+This protocol uses two message types:
+- Request message: from master to slave
+- Response message: from slave to master
+
+The master is the onboard computer of the satellite, or the master of the communication bus, and the slave is the generic inertial
+measurement unit.
+
+
+### CAN Protocol Format
+The CAN Protocol is the message-passing format which will be used in the case of the generic inertial measurement unit. A CAN frame
+consists of a 16-bit header, a 4-bit data length variable, and then between 0 and 8 bytes of data. There is then a trailing unit of
+28 bits. The following chart indicates the parts of the message:
+
+Field Name     | Length (bits) | Purpose | Value (in this case)
+|:-------------|:-------------:|:-------:|--------------------:|
+Start of Frame | 1   | Denotes the start of frame transmission | 1
+Identifier     | 11  | An identifier (message priority)        | 
+Stuff Bit      | 1   | An opposing bit to maintain polarity    | 
+Remote Transmission Request | 1 | 0 for data frames; 1 for remote request frames |
+Identifier Extension Bit  | 1 | 0 for 11-bit identifier frames | 0
+Reserved bit   | 1   | Reserved bit; must be dominant (0)      | 0
+Data length    | 4   | Defines the length of the following     |
+Data field     | <64 | Data to be transmitted (0-8 bytes)      |
+CRC            | 15  | Cyclic Redundancy Check                 |
+CRC delimeter  | 1   | Must be recessive (1)                   | 1
+ACK slot       | 1   | Must be recessive (1)                   | 1
+ACK delimeter  | 1   | Must be recessive (1)                   | 1
+End-of-Frame   | 7   | Must be recessive (1)                   | 0000001
+Inter-frame spacing | 3 | Must be recessive (1)                | 001
+
+The above chart is primarily reproduced from [Wikipedia](https://en.wikipedia.org/wiki/CAN_bus).
+
+
+### Commands (CMD)
+There will be one command required:
+
+#### Command 0x01:  Data request
+This command will direct the IMU to return the data on both linear and rotational acceleration in all three axes.
+
+Field Name     | Length (bits) | Purpose | Value (in this case)
+|:-------------|:-------------:|:-------:|--------------------:|
+Start of Frame | 1   | Denotes the start of frame transmission | 1
+Identifier     | 11  | An identifier (message priority)        | 00000000001
+Stuff Bit      | 1   | An opposing bit to maintain polarity    | 0
+Remote Transmission Request | 1 | 0 for data frames; 1 for remote request frames | 1
+Identifier Extension Bit  | 1 | 0 for 11-bit identifier frames | 0
+Reserved bit   | 1   | Reserved bit; must be dominant (0)      | 0
+Data length    | 4   | Defines the length of the following     | 0000
+Data field     | 0   | Data to be transmitted                  | --
+CRC            | 15  | Cyclic Redundancy Check                 | 000000000000000
+CRC delimeter  | 1   | Must be recessive (1)                   | 1
+ACK slot       | 1   | Must be recessive (1)                   | 1
+ACK delimeter  | 1   | Must be recessive (1)                   | 1
+End-of-Frame   | 7   | Must be recessive (1)                   | 0000001
+Inter-frame spacing | 3 | Must be recessive (1)                | 001
+
+
+#### Telemetry (TLM)
+Because of size constraints on the message itself, there will be three telemetry messages. All three will be sent upon receipt
+of the aforementioned command message.
+
+#### Telemetry 0x02:  X Telemetry
+This command will contain the telemetry from the IMU, including data on linear and rotational acceleration in all three axes.
+
+Field Name     | Length (bits) | Purpose | Value (in this case)
+|:-------------|:-------------:|:-------:|--------------------:|
+Start of Frame | 1   | Denotes the start of frame transmission | 1
+Identifier     | 11  | An identifier (message priority)        | 00000000010
+Stuff Bit      | 1   | An opposing bit to maintain polarity    | 1
+Remote Transmission Request | 1 | 0 for data frames; 1 for remote request frames | 0
+Identifier Extension Bit  | 1 | 0 for 11-bit identifier frames | 0
+Reserved bit   | 1   | Reserved bit; must be dominant (0)      | 0
+Data length    | 4   | Defines the length of the following     | 1000
+Data field     | 64 | Data to be transmitted                   | 32 bit float denoting linear X acceleration, 32 bit float denoting angular X acceleration
+CRC            | 15  | Cyclic Redundancy Check                 | 
+CRC delimeter  | 1   | Must be recessive (1)                   | 1
+ACK slot       | 1   | Must be recessive (1)                   | 1
+ACK delimeter  | 1   | Must be recessive (1)                   | 1
+End-of-Frame   | 7   | Must be recessive (1)                   | 0000001
+Inter-frame spacing | 3 | Must be recessive (1)                | 001
+
+#### Telemetry 0x03:  Y Telemetry
+This command will be identical to the X telemetry message, except that it will had an identifier of 00000000011, a stuff bit of 0,
+and the data field will denote linear Y and angular Y accelerations, respectively.
+
+#### Telemetry 0x04:  Z Telemetry
+This command will be identical to the X telemetry message, except that it will had an identifier of 00000000100, a stuff bit of 1,
+and the data field will denote linear Z and angular Z accelerations, respectively.
+
 
 # Configuration
 The various configuration parameters available for each portion of the component are captured below.
