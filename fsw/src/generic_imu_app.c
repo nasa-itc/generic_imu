@@ -155,7 +155,7 @@ int32 GENERIC_IMU_AppInit(void)
     /*
     ** Create the Software Bus command pipe 
     */
-    status = CFE_SB_CreatePipe(&GENERIC_IMU_AppData.CmdPipe, GENERIC_IMU_PIPE_DEPTH, "GENERIC_IMU_CMD_PIPE");
+    status = CFE_SB_CreatePipe(&GENERIC_IMU_AppData.CmdPipe, GENERIC_IMU_PIPE_DEPTH, "IMU_CMD_PIPE");
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(GENERIC_IMU_PIPE_ERR_EID, CFE_EVS_ERROR,
