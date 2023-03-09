@@ -18,8 +18,8 @@
     /* Notes: 
     **   NOS3 uart requires matching handle and bus number
     */
-    #define GENERIC_IMU_CFG_STRING           "usart_29"
-    #define GENERIC_IMU_CFG_HANDLE           29 
+    #define GENERIC_IMU_CFG_STRING           "usart_5"
+    #define GENERIC_IMU_CFG_HANDLE           5 
     #define GENERIC_IMU_CFG_BAUDRATE_HZ      115200
     #define GENERIC_IMU_CFG_MS_TIMEOUT       50            /* Max 255 */
     /* Note: Debug flag disabled (commented out) by default */
