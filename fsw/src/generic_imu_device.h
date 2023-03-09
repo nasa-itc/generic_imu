@@ -59,12 +59,12 @@ typedef struct
 //    uint16_t  DeviceDataX;
 //    uint16_t  DeviceDataY;
 //    uint16_t  DeviceDataZ;
-    float     XAngularAcc;
     float     XLinearAcc;
-    float     YAngularAcc;
+    float     XAngularAcc;
     float     YLinearAcc;
-    float     ZAngularAcc;
+    float     YAngularAcc;
     float     ZLinearAcc;
+    float     ZAngularAcc;
 
 } OS_PACK GENERIC_IMU_Device_Data_tlm_t;
 #define GENERIC_IMU_DEVICE_DATA_LNGTH sizeof ( GENERIC_IMU_Device_Data_tlm_t )

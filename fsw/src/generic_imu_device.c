@@ -239,21 +239,30 @@ int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* d
                 data->DeviceCounter |= read_data[4] << 8;
                 data->DeviceCounter |= read_data[5];
 
-                data->DeviceDataX  = read_data[6] << 8;
-                data->DeviceDataX |= read_data[7];
+                data->XLinearAcc  = read_data[6] << 24;
+//                data->XLinearAcc |= read_data[7];
+                data->XAngularAcc  = read_data[10] << 24;
+//                data->XAngularAcc |= read_data[9];
 
-                data->DeviceDataY  = read_data[8] << 8;
-                data->DeviceDataY |= read_data[9];
-                
-                data->DeviceDataZ  = read_data[10] << 8;
-                data->DeviceDataZ |= read_data[11];
-
+                data->YLinearAcc   = read_data[14] << 24;
+//                data->YLinearAcc  |= read_data[11];
+                data->YAngularAcc  = read_data[18] << 24;
+//                data->YAngularAcc |= read_data[13];
+               
+                data->ZLinearAcc   = read_data[22] << 24;
+                data->ZAngularAcc  = read_data[26] << 24;
+//                data->DeviceDataZ  = read_data[10] << 8;
+//                data->DeviceDataZ |= read_data[11];
+ 
                 #ifdef GENERIC_IMU_CFG_DEBUG
                     OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
                     OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                    OS_printf("  Data X  = 0x%04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
-                    OS_printf("  Data Y  = 0x%04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
-                    OS_printf("  Data Z  = 0x%04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
+                    OS_printf("  Linear X  = 0x%04x, %d  \n", data->XLinearAcc, data->XLinearAcc);
+                    OS_printf("  Angular X = 0x%04x, %d  \n", data->XAngularAcc, data->XAngularAcc);
+                    OS_printf("  Linear Y  = 0x%04x, %d  \n", data->YLinearAcc, data->YLinearAcc);
+                    OS_printf("  Angular Y = 0x%04x, %d  \n", data->YAngularAcc, data->YAngularAcc);
+                    OS_printf("  Linear Z  = 0x%04x, %d  \n", data->ZLinearAcc, data->ZLinearAcc);
+                    OS_printf("  Angular Z = 0x%04x, %d  \n", data->ZAngularAcc, data->ZAngularAcc);
                     OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
                 #endif
             }
