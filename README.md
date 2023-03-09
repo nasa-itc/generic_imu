@@ -7,6 +7,12 @@ This generic_imu component is a UART device that accepts multiple commands, incl
 The available FSW is for use in the core Flight System (cFS) while the GSW supports COSMOS.
 A NOS3 simulation is available which includes both generic_imu and 42 data providers.
 
+An inertial measurement unit, or IMU, is an electrical unit which uses a combination of accelerometers and gyroscopes to
+report a vehicle's attitude, heading, and rotation. 
+Upon a command, it provides information about the attitude, heading, and rotation of the vehicle.
+The available flight software is for use in the core Flight System (cFS) while the ground software supports COSMOS.
+A NOS3 simulation is available which uses a 42 data provider.
+
 
 # Device Communications
 The protocol, commands, and responses of the component are captured below.
