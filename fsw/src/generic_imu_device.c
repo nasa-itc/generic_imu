@@ -231,8 +231,8 @@ int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* d
             /* Verify data header and trailer */
             if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR_0)     && 
                 (read_data[1]  == GENERIC_IMU_DEVICE_HDR_1)     && 
-                (read_data[12] == GENERIC_IMU_DEVICE_TRAILER_0) && 
-                (read_data[13] == GENERIC_IMU_DEVICE_TRAILER_1) )
+                (read_data[30] == GENERIC_IMU_DEVICE_TRAILER_0) && 
+                (read_data[31] == GENERIC_IMU_DEVICE_TRAILER_1) )
             {
                 data->DeviceCounter  = read_data[2] << 24;
                 data->DeviceCounter |= read_data[3] << 16;
