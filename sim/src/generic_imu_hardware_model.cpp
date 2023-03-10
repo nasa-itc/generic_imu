@@ -174,7 +174,7 @@ namespace Nos3
         boost::shared_ptr<Generic_imuDataPoint> data_point = boost::dynamic_pointer_cast<Generic_imuDataPoint>(_generic_imu_dp->get_data_point());
 
         /* Prepare data size */
-        out_data.resize(14, 0x00);
+        out_data.resize(32, 0x00); //Was originally 14
 
         /* Streaming data header - 0xDEAD */
         out_data[0] = 0xDE;
@@ -197,19 +197,50 @@ namespace Nos3
         ** Scale each of the x, y, z (which are in the range [-1.0, 1.0]) by 32767, 
         **   and add 32768 so that the result fits in a uint16
         */
-        uint16_t x   = (uint16_t)(data_point->get_generic_imu_data_x()*32767.0 + 32768.0);
-        out_data[6]  = (x >> 8) & 0x00FF;
-        out_data[7]  =  x       & 0x00FF;
-        uint16_t y   = (uint16_t)(data_point->get_generic_imu_data_y()*32767.0 + 32768.0);
-        out_data[8]  = (y >> 8) & 0x00FF;
-        out_data[9]  =  y       & 0x00FF;
-        uint16_t z   = (uint16_t)(data_point->get_generic_imu_data_z()*32767.0 + 32768.0);
-        out_data[10] = (z >> 8) & 0x00FF;
-        out_data[11] =  z       & 0x00FF;
+//        uint16_t x   = (uint16_t)(data_point->get_generic_imu_data_x()*32767.0 + 32768.0);
+//        out_data[6]  = (x >> 8) & 0x00FF;
+//        out_data[7]  =  x       & 0x00FF;
+        uint32_t x_linear = 1; //This will have to be changed to get actual relevant data; maybe it should not be a float?
+        out_data[ 6] = (x_linear >> 24) & 0x00FF;
+        out_data[ 7] = (x_linear >> 16) & 0x00FF;
+        out_data[ 8] = (x_linear >> 8 ) & 0x00FF;
+        out_data[ 9] =  x_linear        & 0x00FF;
+        uint32_t x_angular = 1; //This will have to be changed to get actual relevant data; maybe it should not be a float?
+        out_data[10] = (x_angular >> 24) & 0x00FF;
+        out_data[11] = (x_angular >> 16) & 0x00FF;
+        out_data[12] = (x_angular >> 8 ) & 0x00FF;
+        out_data[13] =  x_angular        & 0x00FF;
+        uint32_t y_linear = 1; //This will have to be changed to get actual relevant data; maybe it should not be a float?
+        out_data[14] = (y_linear >> 24) & 0x00FF;
+        out_data[15] = (y_linear >> 16) & 0x00FF;
+        out_data[16] = (y_linear >> 8 ) & 0x00FF;
+        out_data[17] =  y_linear        & 0x00FF;
+        uint32_t y_angular = 1; //This will have to be changed to get actual relevant data; maybe it should not be a float?
+        out_data[18] = (y_angular >> 24) & 0x00FF;
+        out_data[19] = (y_angular >> 16) & 0x00FF;
+        out_data[20] = (y_angular >> 8 ) & 0x00FF;
+        out_data[21] =  y_angular        & 0x00FF;
+        uint32_t z_linear = 1; //This will have to be changed to get actual relevant data; maybe it should not be a float?
+        out_data[22] = (z_linear >> 24) & 0x00FF;
+        out_data[23] = (z_linear >> 16) & 0x00FF;
+        out_data[24] = (z_linear >> 8 ) & 0x00FF;
+        out_data[25] =  z_linear        & 0x00FF;
+        uint32_t z_angular = 1; //This will have to be changed to get actual relevant data; maybe it should not be a float?
+        out_data[26] = (z_angular >> 24) & 0x00FF;
+        out_data[27] = (z_angular >> 16) & 0x00FF;
+        out_data[28] = (z_angular >> 8 ) & 0x00FF;
+        out_data[29] =  z_angular        & 0x00FF;
+
+//        uint16_t y   = (uint16_t)(data_point->get_generic_imu_data_y()*32767.0 + 32768.0);
+//        out_data[8]  = (y >> 8) & 0x00FF;
+//        out_data[9]  =  y       & 0x00FF;
+//        uint16_t z   = (uint16_t)(data_point->get_generic_imu_data_z()*32767.0 + 32768.0);
+//        out_data[10] = (z >> 8) & 0x00FF;
+//        out_data[11] =  z       & 0x00FF;
 
         /* Streaming data trailer - 0xBEEF */
-        out_data[12] = 0xBE;
-        out_data[13] = 0xEF;
+        out_data[30] = 0xBE;
+        out_data[31] = 0xEF;
     }
 
 

@@ -24,7 +24,8 @@ int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_le
 
     /* Wait until all data received or timeout occurs */
     bytes_available = uart_bytes_available(handle);
-    printf("%d, %d\n", handle, bytes_available);
+    printf("Handle: %d, bytes_available: %d, command output: %d\n", handle, bytes_available, uart_bytes_available(handle));
+    printf("bytes_available, ms_timeout_counter, data_length, GENERIC_IMU_CFG_MS_TIMEOUT\n");
     while((bytes_available < data_length) && (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT))
     {
         ms_timeout_counter++;
