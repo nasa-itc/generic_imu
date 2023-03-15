@@ -24,14 +24,11 @@ int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_le
 
     /* Wait until all data received or timeout occurs */
     bytes_available = uart_bytes_available(handle);
-    printf("Handle: %d, bytes_available: %d, command output: %d\n", handle, bytes_available, uart_bytes_available(handle));
-    printf("bytes_available, ms_timeout_counter, data_length, GENERIC_IMU_CFG_MS_TIMEOUT\n");
     while((bytes_available < data_length) && (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT))
     {
         ms_timeout_counter++;
         OS_TaskDelay(1);
         bytes_available = uart_bytes_available(handle);
-        printf("%d, %u, %u, %d\n", bytes_available, ms_timeout_counter, data_length, GENERIC_IMU_CFG_MS_TIMEOUT);
     }
 
     if (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT)
@@ -54,7 +51,6 @@ int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_le
     }
     else
     {
-        printf("Some other problem\n");
         status = OS_ERROR;
     } /* ms_timeout_counter */
 
@@ -220,11 +216,9 @@ int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* d
     if (status == OS_SUCCESS)
     {
         /* Read HK data */
-        printf("Into the HK data reading section...\n");
         status = GENERIC_IMU_ReadData(handle, read_data, sizeof(read_data));
         if (status == OS_SUCCESS)
         {
-            printf("Into the next section\n");
             #ifdef GENERIC_IMU_CFG_DEBUG
                 OS_printf("  GENERIC_IMU_RequestData = ");
                 for (uint32_t i = 0; i < sizeof(read_data); i++)
@@ -233,9 +227,6 @@ int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* d
                 }
                 OS_printf("\n");
             #endif
-
-            printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
-            printf("  Trailer = 0x%02x%02x  \n", read_data[30], read_data[31]);
 
             /* Verify data header and trailer */
             if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR_0)     && 
@@ -248,15 +239,27 @@ int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* d
                 data->DeviceCounter |= read_data[4] << 8;
                 data->DeviceCounter |= read_data[5];
 
-                printf("Line 242 in generic_imu_device.c, reading data");
-                data->XLinearAcc   = 4.223;
-                data->XAngularAcc  = 0.3201;
-                data->YLinearAcc   = 3.805;
-                data->YAngularAcc  = 0.264;
-                data->ZLinearAcc   = 1.013;
-                data->ZAngularAcc  = 0.06637;
+                uint32_t data_preadjustment[6];
+                for (int i = 1; i <= 6; i++) {
+                    data_preadjustment[i-1]  = read_data[2+4*i] << 24;
+                    data_preadjustment[i-1] |= read_data[3+4*i] << 16;
+                    data_preadjustment[i-1] |= read_data[4+4*i] << 8;
+                    data_preadjustment[i-1] |= read_data[5+4*i];
+
+                }
+
+                data->XLinearAcc  = (float) (data_preadjustment[0] - 8338608.0)/8338607.0;
+                data->XAngularAcc  = (float) (data_preadjustment[1] - 8338608.0)/8338607.0;
+                data->YLinearAcc  = (float) (data_preadjustment[2] - 8338608.0)/8338607.0;
+                data->YAngularAcc  = (float) (data_preadjustment[3] - 8338608.0)/8338607.0;
+                data->ZLinearAcc  = (float) (data_preadjustment[4] - 8338608.0)/8338607.0;
+                data->ZAngularAcc  = (float) (data_preadjustment[5] - 8338608.0)/8338607.0;
 
 //                data->XLinearAcc  = read_data[6] << 24;
+//                data->XLinearAcc |= read_data[7] << 16;
+//                data->XLinearAcc |= read_data[8] << 8;
+//                data->XLinearAcc |= read_data[9];
+//
 //                data->XAngularAcc  = read_data[10] << 24;
 //
 //                data->YLinearAcc   = read_data[14] << 24;

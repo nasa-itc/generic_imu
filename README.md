@@ -3,7 +3,7 @@ This repository contains the NOS3 Generic_imu Component.
 This includes flight software (FSW), ground software (GSW), simulation, and support directories.
 
 ## Overview
-This generic_imu component is a UART device that accepts multiple commands, including requests for telemetry and data.
+This generic_imu component is a CAN device that accepts multiple commands, including requests for telemetry and data.
 The available FSW is for use in the core Flight System (cFS) while the GSW supports COSMOS.
 A NOS3 simulation is available which includes both generic_imu and 42 data providers.
 
@@ -18,7 +18,7 @@ A NOS3 simulation is available which uses a 42 data provider.
 The protocol, commands, and responses of the component are captured below.
 
 ## Protocol
-The protocol in use is UART 115200 8N1.
+The protocol in use is CAN.
 The device is speak when spoken too.
 All communications with the device require / contain a header of 0xDEAD and a trailer of 0xBEEF.
 
