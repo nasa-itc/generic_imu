@@ -11,6 +11,7 @@
 
 #include <Client/Bus.hpp>
 #include <Uart/Client/Uart.hpp> /* TODO: Change if your protocol bus is different (e.g. SPI, I2C, etc.) */
+#include <Can/Client/CanSlave.hpp> //The right protocol, actually
 
 #include <sim_i_data_provider.hpp>
 #include <generic_imu_data_point.hpp>

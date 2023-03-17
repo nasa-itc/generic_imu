@@ -41,11 +41,11 @@ static CFE_EVS_BinFilter_t  GENERIC_IMU_EventFilters[] =
     {GENERIC_IMU_DEVICE_TLM_ERR_EID,     0x0000},
     {GENERIC_IMU_REQ_HK_ERR_EID,         0x0000},
     {GENERIC_IMU_REQ_DATA_ERR_EID,       0x0000},
-    {GENERIC_IMU_UART_INIT_ERR_EID,      0x0000},
-    {GENERIC_IMU_UART_CLOSE_ERR_EID,     0x0000},
-    {GENERIC_IMU_UART_READ_ERR_EID,      0x0000},
-    {GENERIC_IMU_UART_WRITE_ERR_EID,     0x0000},
-    {GENERIC_IMU_UART_TIMEOUT_ERR_EID,   0x0000},
+    {GENERIC_IMU_CAN_INIT_ERR_EID,       0x0000},
+    {GENERIC_IMU_CAN_CLOSE_ERR_EID,      0x0000},
+    {GENERIC_IMU_CAN_READ_ERR_EID,       0x0000},
+    {GENERIC_IMU_CAN_WRITE_ERR_EID,      0x0000},
+    {GENERIC_IMU_CAN_TIMEOUT_ERR_EID,    0x0000},
     /* TODO: Add additional event IDs (EID) to the table as created */
 };
 
@@ -529,7 +529,7 @@ void GENERIC_IMU_Enable(void)
         else
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_IMU_UART_INIT_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: UART port initialization error %d", status);
+            CFE_EVS_SendEvent(GENERIC_IMU_CAN_INIT_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: CAN port initialization error %d", status);
         }
     }
     else
@@ -563,7 +563,7 @@ void GENERIC_IMU_Disable(void)
         else
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_IMU_UART_CLOSE_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: UART port close error %d", status);
+            CFE_EVS_SendEvent(GENERIC_IMU_CAN_CLOSE_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: CAN port close error %d", status);
         }
     }
     else

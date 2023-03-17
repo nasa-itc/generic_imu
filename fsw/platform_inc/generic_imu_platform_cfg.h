@@ -16,7 +16,8 @@
 */
 #ifndef GENERIC_IMU_CFG
     /* Notes: 
-    **   NOS3 uart requires matching handle and bus number
+    **   This needs to be changed from uart to can; how exactly
+    **   that will work is unclear.
     */
     #define GENERIC_IMU_CFG_STRING           "usart_5"
     #define GENERIC_IMU_CFG_HANDLE           5 

@@ -9,7 +9,7 @@ namespace Nos3
     Generic_imuHardwareModel::Generic_imuHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), _enabled(0), _count(0), _config(0), _status(0)
     {
         /* Get the NOS engine connection string */
-        std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001"); 
+        std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001");
         sim_logger->info("Generic_imuHardwareModel::Generic_imuHardwareModel:  NOS Engine connection string: %s.", connection_string.c_str());
 
         /* Get a data provider */
@@ -252,7 +252,7 @@ namespace Nos3
 
 
     /* Protocol callback */
-    void Generic_imuHardwareModel::uart_read_callback(const uint8_t *buf, size_t len)
+    void Generic_imuHardwareModel::determine_can_response(const std::vector<uint8_t>& in_data)
     {
         std::vector<uint8_t> out_data; 
         std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
@@ -260,14 +260,13 @@ namespace Nos3
         std::uint32_t rcv_config;
 
         /* Retrieve data and log in man readable format */
-        std::vector<uint8_t> in_data(buf, buf + len);
-        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  REQUEST %s",
+        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  REQUEST %s",
             SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str());
 
         /* Check simulator is enabled */
         if (_enabled != GENERIC_IMU_SIM_SUCCESS)
         {
-            sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Generic_imu sim disabled!");
+            sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Generic_imu sim disabled!");
             valid = GENERIC_IMU_SIM_ERROR;
         }
         else
@@ -275,33 +274,9 @@ namespace Nos3
             /* Check if message is incorrect size */
             if (in_data.size() != 9)
             {
-                sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Invalid command size of %d received!", in_data.size());
+                sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command size of %d received!", in_data.size());
                 valid = GENERIC_IMU_SIM_ERROR;
             }
-            else
-            {
-                /* Check header - 0xDEAD */
-                if ((in_data[0] != 0xDE) || (in_data[1] !=0xAD))
-                {
-                    sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Header incorrect!");
-                    valid = GENERIC_IMU_SIM_ERROR;
-                }
-                else
-                {
-                    /* Check trailer - 0xBEEF */
-                    if ((in_data[7] != 0xBE) || (in_data[8] !=0xEF))
-                    {
-                        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Trailer incorrect!");
-                        valid = GENERIC_IMU_SIM_ERROR;
-                    }
-                    else
-                    {
-                        /* Increment count as valid command format received */
-                        _count++;
-                    }
-                }
-            }
-
             if (valid == GENERIC_IMU_SIM_SUCCESS)
             {   
                 /* Process command */
@@ -309,24 +284,24 @@ namespace Nos3
                 {
                     case 0:
                         /* NOOP */
-                        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  NOOP command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  NOOP command received!");
                         break;
 
-                case 1:
+                    case 1:
                         /* Request HK */
-                        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Send HK command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send HK command received!");
                         create_generic_imu_hk(out_data);
                         break;
 
                     case 2:
                         /* Request data */
-                        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Send data command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
                         create_generic_imu_data(out_data);
                         break;
 
                     case 3:
                         /* Configuration */
-                        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Configuration command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Configuration command received!");
                         _config  = in_data[3] << 24;
                         _config |= in_data[4] << 16;
                         _config |= in_data[5] << 8;
@@ -336,7 +311,7 @@ namespace Nos3
                     default:
                         /* Unused command code */
                         valid = GENERIC_IMU_SIM_ERROR;
-                        sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  Unused command %d received!", in_data[2]);
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Unused command %d received!", in_data[2]);
                         break;
                 }
             }
@@ -351,7 +326,7 @@ namespace Nos3
             /* Send response if existing */
             if (out_data.size() > 0)
             {
-                sim_logger->debug("Generic_imuHardwareModel::uart_read_callback:  REPLY %s",
+                sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  REPLY %s",
                     SimIHardwareModel::uint8_vector_to_hex_string(out_data).c_str());
                 _uart_connection->write(&out_data[0], out_data.size());
             }
