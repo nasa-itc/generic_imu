@@ -15,7 +15,7 @@
 /* 
 ** Generic read data from device
 */
-int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
+int32_t GENERIC_IMU_ReadData(int32_t handle, can_info_t Generic_imuCan, uint8_t data_length)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
@@ -40,7 +40,7 @@ int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_le
         }
         
         /* Read data */
-        bytes = uart_read_port(handle, read_data, bytes_available);
+        bytes = can_read(&Generic_imuCan);
         if (bytes != bytes_available)
         {
             #ifdef GENERIC_IMU_CFG_DEBUG
@@ -84,10 +84,10 @@ int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t pay
 
     /* Flush any prior data */
     status = uart_flush(handle);
-    if (status == UART_SUCCESS)
+    if (status == CAN_SUCCESS)
     {
         /* Write data */
-        bytes = uart_write_port(handle, write_data, GENERIC_IMU_DEVICE_CMD_SIZE);
+        bytes = can_write(&Generic_imuCan);
         #ifdef GENERIC_IMU_CFG_DEBUG
             OS_printf("  GENERIC_IMU_CommandDevice[%d] = ", bytes);
             for (uint32_t i = 0; i < GENERIC_IMU_DEVICE_CMD_SIZE; i++)
@@ -124,7 +124,7 @@ int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t pay
             #ifdef GENERIC_IMU_CFG_DEBUG
                 OS_printf("GENERIC_IMU_CommandDevice - uart_write_port returned %d, expected %d \n", bytes, GENERIC_IMU_DEVICE_CMD_SIZE);
             #endif
-        } /* uart_write */
+        } /* can_write */
     } /* uart_flush*/
     return status;
 }

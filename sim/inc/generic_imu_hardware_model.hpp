@@ -10,7 +10,6 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <Client/Bus.hpp>
-#include <Uart/Client/Uart.hpp> /* TODO: Change if your protocol bus is different (e.g. SPI, I2C, etc.) */
 #include <Can/Client/CanSlave.hpp> //The right protocol, actually
 
 #include <sim_i_data_provider.hpp>
@@ -42,11 +41,11 @@ namespace Nos3
         /* Private helper methods */
         void create_generic_imu_hk(std::vector<uint8_t>& out_data); 
         void create_generic_imu_data(std::vector<uint8_t>& out_data); 
-        void uart_read_callback(const uint8_t *buf, size_t len); /* Handle data the hardware receives from its protocol bus */
+        void determine_can_response(const std::vector<uint8_t>& in_data); /* Handle data the hardware receives from its protocol bus */
         void command_callback(NosEngine::Common::Message msg); /* Handle backdoor commands and time tick to the simulator */
 
         /* Private data members */
-        std::unique_ptr<NosEngine::Uart::Uart>              _uart_connection; /* TODO: Change if your protocol bus is different (e.g. SPI, I2C, etc.) */
+        std::unique_ptr<NosEngine::Can::Client>             _can_connection; /* TODO: Finish changing everything else so this is actually CAN and not UART */
         std::unique_ptr<NosEngine::Client::Bus>             _time_bus; /* Standard */
 
         SimIDataProvider*                                   _generic_imu_dp; /* Only needed if the sim has a data provider */

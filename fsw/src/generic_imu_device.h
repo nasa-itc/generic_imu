@@ -20,9 +20,7 @@
 ** Type definitions
 ** TODO: Make specific to your application
 */
-#define GENERIC_IMU_DEVICE_HDR              0xDEAD
-#define GENERIC_IMU_DEVICE_HDR_0            0xDE
-#define GENERIC_IMU_DEVICE_HDR_1            0xAD
+#define GENERIC_IMU_DEVICE_HDR              0x80
 
 #define GENERIC_IMU_DEVICE_NOOP_CMD         0x00
 #define GENERIC_IMU_DEVICE_REQ_HK_CMD       0x01

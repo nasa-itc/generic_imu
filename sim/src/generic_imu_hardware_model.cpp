@@ -36,12 +36,12 @@ namespace Nos3
                 }
             }
         }
-        _uart_connection.reset(new NosEngine::Uart::Uart(_hub, config.get("simulator.name", "generic_imu_sim"), connection_string, bus_name));
-        _uart_connection->open(node_port);
+        _can_connection.reset(new NosEngine::Can::Client(_hub, config.get("simulator.name", "generic_imu_sim"), connection_string, bus_name)); //This might not be how to do this; I just replaced NosEngine::Uart::Uart with NosEngine::Can::Client.
+        _can_connection->open(node_port);
         sim_logger->info("Generic_imuHardwareModel::Generic_imuHardwareModel:  Now on UART bus name %s, port %d.", bus_name.c_str(), node_port);
     
         /* Configure protocol callback */
-        _uart_connection->set_read_callback(std::bind(&Generic_imuHardwareModel::uart_read_callback, this, std::placeholders::_1, std::placeholders::_2));
+        _uart_connection->set_read_callback(std::bind(&Generic_imuHardwareModel::uart_read_callback, this, std::placeholders::_1, std::placeholders::_2)); //This will need to be replaced with determine_can_response.
 
         /* Get on the command bus*/
         std::string time_bus_name = "command";
@@ -71,7 +71,7 @@ namespace Nos3
     Generic_imuHardwareModel::~Generic_imuHardwareModel(void)
     {        
         /* Close the protocol bus */
-        _uart_connection->close();
+        _can_connection->close();
 
         /* Clean up the data provider */
         delete _generic_imu_dp;
@@ -138,33 +138,29 @@ namespace Nos3
     void Generic_imuHardwareModel::create_generic_imu_hk(std::vector<uint8_t>& out_data)
     {
         /* Prepare data size */
-        out_data.resize(16, 0x00);
+        out_data.resize(12, 0x00);
 
-        /* Streaming data header - 0xDEAD */
-        out_data[0] = 0xDE;
-        out_data[1] = 0xAD;
-        
+        // I removed both header and trailer from this, since CAN does not use the same kind
+        // as other protocols do.
+
         /* Sequence count */
-        out_data[2] = (_count >> 24) & 0x000000FF; 
-        out_data[3] = (_count >> 16) & 0x000000FF; 
-        out_data[4] = (_count >>  8) & 0x000000FF; 
-        out_data[5] =  _count & 0x000000FF;
+        out_data[0] = (_count >> 24) & 0x000000FF; 
+        out_data[1] = (_count >> 16) & 0x000000FF; 
+        out_data[2] = (_count >>  8) & 0x000000FF; 
+        out_data[3] =  _count & 0x000000FF;
         
         /* Configuration */
-        out_data[6] = (_config >> 24) & 0x000000FF; 
-        out_data[7] = (_config >> 16) & 0x000000FF; 
-        out_data[8] = (_config >>  8) & 0x000000FF; 
-        out_data[9] =  _config & 0x000000FF;
+        out_data[4] = (_config >> 24) & 0x000000FF; 
+        out_data[5] = (_config >> 16) & 0x000000FF; 
+        out_data[6] = (_config >>  8) & 0x000000FF; 
+        out_data[7] =  _config & 0x000000FF;
 
         /* Device Status */
-        out_data[10] = (_status >> 24) & 0x000000FF; 
-        out_data[11] = (_status >> 16) & 0x000000FF; 
-        out_data[12] = (_status >>  8) & 0x000000FF; 
-        out_data[13] =  _status & 0x000000FF;
+        out_data[8] = (_status >> 24) & 0x000000FF; 
+        out_data[9] = (_status >> 16) & 0x000000FF; 
+        out_data[10] = (_status >>  8) & 0x000000FF; 
+        out_data[11] =  _status & 0x000000FF;
 
-        /* Streaming data trailer - 0xBEEF */
-        out_data[14] = 0xBE;
-        out_data[15] = 0xEF;
     }
 
 
@@ -174,17 +170,15 @@ namespace Nos3
         boost::shared_ptr<Generic_imuDataPoint> data_point = boost::dynamic_pointer_cast<Generic_imuDataPoint>(_generic_imu_dp->get_data_point());
 
         /* Prepare data size */
-        out_data.resize(32, 0x00); //Was originally 14
+        out_data.resize(28, 0x00); //Was originally 14
 
-        /* Streaming data header - 0xDEAD */
-        out_data[0] = 0xDE;
-        out_data[1] = 0xAD;
-        
+        // Header and trailer removed from this one as well.
+       
         /* Sequence count */
-        out_data[2] = (_count >> 24) & 0x000000FF; 
-        out_data[3] = (_count >> 16) & 0x000000FF; 
-        out_data[4] = (_count >>  8) & 0x000000FF; 
-        out_data[5] =  _count & 0x000000FF;
+        out_data[0] = (_count >> 24) & 0x000000FF; 
+        out_data[1] = (_count >> 16) & 0x000000FF; 
+        out_data[2] = (_count >>  8) & 0x000000FF; 
+        out_data[3] =  _count & 0x000000FF;
         
         /* 
         ** Payload 
@@ -207,36 +201,36 @@ namespace Nos3
         printf("Z linear acceleration: %d\n", data_point->get_generic_imu_acc_z());
         printf("Z angular acceleration: %d\n", data_point->get_generic_imu_gyro_z());
 
-        uint32_t x_linear = (uint32_t)(data_point->get_generic_imu_acc_x()*8338607.0 + 8338608.0); //This will have to be changed to get actual relevant data; maybe it should not be a float?
-        out_data[ 6] = (x_linear >> 24) & 0x00FF;
-        out_data[ 7] = (x_linear >> 16) & 0x00FF;
-        out_data[ 8] = (x_linear >> 8 ) & 0x00FF;
-        out_data[ 9] =  x_linear        & 0x00FF;
-        uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*8338607.0 + 8338608.0); //This will have to be changed to get actual relevant data; maybe it should not be a float?
-        out_data[10] = (x_angular >> 24) & 0x00FF;
-        out_data[11] = (x_angular >> 16) & 0x00FF;
-        out_data[12] = (x_angular >> 8 ) & 0x00FF;
-        out_data[13] =  x_angular        & 0x00FF;
-        uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*8338607.0 + 8338608.0); //This will have to be changed to get actual relevant data; maybe it should not be a float?
-        out_data[14] = (y_linear >> 24) & 0x00FF;
-        out_data[15] = (y_linear >> 16) & 0x00FF;
-        out_data[16] = (y_linear >> 8 ) & 0x00FF;
-        out_data[17] =  y_linear        & 0x00FF;
-        uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*8338607.0 + 8338608.0); //This will have to be changed to get actual relevant data; maybe it should not be a float?
-        out_data[18] = (y_angular >> 24) & 0x00FF;
-        out_data[19] = (y_angular >> 16) & 0x00FF;
-        out_data[20] = (y_angular >> 8 ) & 0x00FF;
-        out_data[21] =  y_angular        & 0x00FF;
-        uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*8338607.0 + 8338608.0); //This will have to be changed to get actual relevant data; maybe it should not be a float?
-        out_data[22] = (z_linear >> 24) & 0x00FF;
-        out_data[23] = (z_linear >> 16) & 0x00FF;
-        out_data[24] = (z_linear >> 8 ) & 0x00FF;
-        out_data[25] =  z_linear        & 0x00FF;
-        uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*8338607.0 + 8338608.0); //This will have to be changed to get actual relevant data; maybe it should not be a float?
-        out_data[26] = (z_angular >> 24) & 0x00FF;
-        out_data[27] = (z_angular >> 16) & 0x00FF;
-        out_data[28] = (z_angular >> 8 ) & 0x00FF;
-        out_data[29] =  z_angular        & 0x00FF;
+        uint32_t x_linear = (uint32_t)(data_point->get_generic_imu_acc_x()*8338607.0 + 8338608.0); //I am not sure of this conversion strategy, and it is the same one I use everywhere below.
+        out_data[ 4] = (x_linear >> 24) & 0x00FF;
+        out_data[ 5] = (x_linear >> 16) & 0x00FF;
+        out_data[ 6] = (x_linear >> 8 ) & 0x00FF;
+        out_data[ 7] =  x_linear        & 0x00FF;
+        uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*8338607.0 + 8338608.0); 
+        out_data[ 8] = (x_angular >> 24) & 0x00FF;
+        out_data[ 9] = (x_angular >> 16) & 0x00FF;
+        out_data[10] = (x_angular >> 8 ) & 0x00FF;
+        out_data[11] =  x_angular        & 0x00FF;
+        uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*8338607.0 + 8338608.0); 
+        out_data[12] = (y_linear >> 24) & 0x00FF;
+        out_data[13] = (y_linear >> 16) & 0x00FF;
+        out_data[14] = (y_linear >> 8 ) & 0x00FF;
+        out_data[15] =  y_linear        & 0x00FF;
+        uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*8338607.0 + 8338608.0); 
+        out_data[16] = (y_angular >> 24) & 0x00FF;
+        out_data[17] = (y_angular >> 16) & 0x00FF;
+        out_data[18] = (y_angular >> 8 ) & 0x00FF;
+        out_data[19] =  y_angular        & 0x00FF;
+        uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*8338607.0 + 8338608.0); 
+        out_data[20] = (z_linear >> 24) & 0x00FF;
+        out_data[21] = (z_linear >> 16) & 0x00FF;
+        out_data[22] = (z_linear >> 8 ) & 0x00FF;
+        out_data[23] =  z_linear        & 0x00FF;
+        uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*8338607.0 + 8338608.0); 
+        out_data[24] = (z_angular >> 24) & 0x00FF;
+        out_data[25] = (z_angular >> 16) & 0x00FF;
+        out_data[26] = (z_angular >> 8 ) & 0x00FF;
+        out_data[27] =  z_angular        & 0x00FF;
 
 //        uint16_t y   = (uint16_t)(data_point->get_generic_imu_data_y()*8338607.0 + 8338608.0);
 //        out_data[8]  = (y >> 8) & 0x00FF;
@@ -245,9 +239,6 @@ namespace Nos3
 //        out_data[10] = (z >> 8) & 0x00FF;
 //        out_data[11] =  z       & 0x00FF;
 
-        /* Streaming data trailer - 0xBEEF */
-        out_data[30] = 0xBE;
-        out_data[31] = 0xEF;
     }
 
 
@@ -277,6 +268,10 @@ namespace Nos3
                 sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command size of %d received!", in_data.size());
                 valid = GENERIC_IMU_SIM_ERROR;
             }
+            // If I were to check the header, this is where I would want to do it.
+            // Ditto for the trailer. The header (first chunk, at least) should typically
+            // be 8, and the second chunk should be 0. The first 8 bits should be 80.
+
             if (valid == GENERIC_IMU_SIM_SUCCESS)
             {   
                 /* Process command */
@@ -302,10 +297,10 @@ namespace Nos3
                     case 3:
                         /* Configuration */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Configuration command received!");
-                        _config  = in_data[3] << 24;
-                        _config |= in_data[4] << 16;
-                        _config |= in_data[5] << 8;
-                        _config |= in_data[6];
+                        _config  = in_data[5] << 24;
+                        _config |= in_data[6] << 16;
+                        _config |= in_data[7] << 8;
+                        _config |= in_data[8];
                         break;
                     
                     default:
@@ -321,14 +316,14 @@ namespace Nos3
         if (valid == GENERIC_IMU_SIM_SUCCESS)
         {
             _count++;
-            _uart_connection->write(&in_data[0], in_data.size());
+            _can_connection->write(&in_data[0], in_data.size());
 
             /* Send response if existing */
             if (out_data.size() > 0)
             {
                 sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  REPLY %s",
                     SimIHardwareModel::uint8_vector_to_hex_string(out_data).c_str());
-                _uart_connection->write(&out_data[0], out_data.size());
+                _can_connection->write(&out_data[0], out_data.size());
             }
         }
     }
