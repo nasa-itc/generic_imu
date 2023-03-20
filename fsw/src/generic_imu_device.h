@@ -69,10 +69,10 @@ typedef struct
 /*
 ** Prototypes
 */
-int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length);
-int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd, uint32_t payload);
-int32_t GENERIC_IMU_RequestHK(int32_t handle, GENERIC_IMU_Device_HK_tlm_t* data);
-int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* data);
+int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length);
+int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd, uint32_t payload);
+int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data);
+int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data);
 
 
 #endif /* _GENERIC_IMU_DEVICE_H_ */

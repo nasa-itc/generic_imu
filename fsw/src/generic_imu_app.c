@@ -359,7 +359,7 @@ void GENERIC_IMU_ProcessGroundCommand(void)
             {
                 CFE_EVS_SendEvent(GENERIC_IMU_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "GENERIC_IMU: Configuration command received");
                 /* Command device to send HK */
-                status = GENERIC_IMU_CommandDevice(GENERIC_IMU_AppData.Generic_imuUart.handle, GENERIC_IMU_DEVICE_CFG_CMD, ((GENERIC_IMU_Config_cmd_t*) GENERIC_IMU_AppData.MsgPtr)->DeviceCfg);
+                status = GENERIC_IMU_CommandDevice(&GENERIC_IMU_AppData.Generic_imuCan, GENERIC_IMU_DEVICE_CFG_CMD, ((GENERIC_IMU_Config_cmd_t*) GENERIC_IMU_AppData.MsgPtr)->DeviceCfg);
                 if (status == OS_SUCCESS)
                 {
                     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
@@ -432,7 +432,7 @@ void GENERIC_IMU_ReportHousekeeping(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
-        status = GENERIC_IMU_RequestHK(GENERIC_IMU_AppData.Generic_imuUart.handle, (GENERIC_IMU_Device_HK_tlm_t*) &GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK);
+        status = GENERIC_IMU_RequestHK(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_HK_tlm_t*) &GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK);
         if (status == OS_SUCCESS)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
@@ -463,7 +463,7 @@ void GENERIC_IMU_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
-        status = GENERIC_IMU_RequestData(GENERIC_IMU_AppData.Generic_imuUart.handle, (GENERIC_IMU_Device_Data_tlm_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu);
+        status = GENERIC_IMU_RequestData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Data_tlm_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu);
         if (status == OS_SUCCESS)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
@@ -512,14 +512,14 @@ void GENERIC_IMU_Enable(void)
         ** TODO: Make specific to your application depending on protocol in use
         ** Note that other components provide examples for the different protocols available
         */ 
-        GENERIC_IMU_AppData.Generic_imuUart.deviceString = GENERIC_IMU_CFG_STRING;
-        GENERIC_IMU_AppData.Generic_imuUart.handle = GENERIC_IMU_CFG_HANDLE;
-        GENERIC_IMU_AppData.Generic_imuUart.isOpen = PORT_CLOSED;
-        GENERIC_IMU_AppData.Generic_imuUart.baud = GENERIC_IMU_CFG_BAUDRATE_HZ;
-        GENERIC_IMU_AppData.Generic_imuUart.access_option = uart_access_flag_RDWR;
+//        GENERIC_IMU_AppData.Generic_imuUart.deviceString = GENERIC_IMU_CFG_STRING;
+//        GENERIC_IMU_AppData.Generic_imuUart.handle = GENERIC_IMU_CFG_HANDLE;
+//        GENERIC_IMU_AppData.Generic_imuUart.isOpen = PORT_CLOSED;
+//        GENERIC_IMU_AppData.Generic_imuUart.baud = GENERIC_IMU_CFG_BAUDRATE_HZ;
+//        GENERIC_IMU_AppData.Generic_imuUart.access_option = uart_access_flag_RDWR;
 
         /* Open device specific protocols */
-        status = uart_init_port(&GENERIC_IMU_AppData.Generic_imuUart);
+        status = can_init_dev(&GENERIC_IMU_AppData.Generic_imuCan);
         if (status == OS_SUCCESS)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
@@ -553,7 +553,7 @@ void GENERIC_IMU_Disable(void)
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
         /* Open device specific protocols */
-        status = uart_close_port(GENERIC_IMU_AppData.Generic_imuUart.handle);
+        status = can_close_device(&GENERIC_IMU_AppData.Generic_imuCan);
         if (status == OS_SUCCESS)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;

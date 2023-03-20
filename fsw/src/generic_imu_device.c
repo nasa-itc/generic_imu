@@ -15,45 +15,33 @@
 /* 
 ** Generic read data from device
 */
-int32_t GENERIC_IMU_ReadData(int32_t handle, can_info_t Generic_imuCan, uint8_t data_length)
+int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length)
 {
     int32_t status = OS_SUCCESS;
-    int32_t bytes = 0;
-    int32_t bytes_available = 0;
-    uint8_t ms_timeout_counter = 0;
+//    int32_t bytes = 0;
 
     /* Wait until all data received or timeout occurs */
-    bytes_available = uart_bytes_available(handle);
-    while((bytes_available < data_length) && (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT))
+    status = can_master_transaction(canDevice);
+    if (status != CAN_SUCCESS)
     {
-        ms_timeout_counter++;
-        OS_TaskDelay(1);
-        bytes_available = uart_bytes_available(handle);
+        #ifdef GENERIC_IMU_CFG_DEBUG
+            OS_printf("GENERIC_IMU_ReadData: GENERIC_IMU_ReadData can_master_transaction failed with %d error! \n", status);
+        #endif
+        status = CAN_ERROR;
     }
-
-    if (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT)
+    else
     {
-        /* Limit bytes available */
-        if (bytes_available > data_length)
-        {
-            bytes_available = data_length;
-        }
-        
-        /* Read data */
-        bytes = can_read(&Generic_imuCan);
-        if (bytes != bytes_available)
+       /* Read data */
+//        bytes = can_read(canDevice);
+        can_read(canDevice);
+        if (canDevice->rx_frame.can_dlc != data_length)
         {
             #ifdef GENERIC_IMU_CFG_DEBUG
                 OS_printf("  GENERIC_IMU_ReadData: Bytes read != to requested! \n");
             #endif
             status = OS_ERROR;
-        } /* uart_read */
+        } /* can_read */
     }
-    else
-    {
-        status = OS_ERROR;
-    } /* ms_timeout_counter */
-
     return status;
 }
 
@@ -62,7 +50,7 @@ int32_t GENERIC_IMU_ReadData(int32_t handle, can_info_t Generic_imuCan, uint8_t 
 ** Generic command to device
 ** Note that confirming the echoed response is specific to this implementation
 */
-int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
+int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code, uint32_t payload)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
@@ -72,8 +60,8 @@ int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t pay
     payload = CFE_MAKE_BIG32(payload);
 
     /* Prepare command */
-    write_data[0] = GENERIC_IMU_DEVICE_HDR_0;
-    write_data[1] = GENERIC_IMU_DEVICE_HDR_1;
+    write_data[0] = GENERIC_IMU_DEVICE_HDR;
+//    write_data[1] = GENERIC_IMU_DEVICE_HDR_1; THIS WILL HAVE TO CHANGE
     write_data[2] = cmd_code;
     write_data[3] = payload >> 24;
     write_data[4] = payload >> 16;
@@ -82,50 +70,45 @@ int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t pay
     write_data[7] = GENERIC_IMU_DEVICE_TRAILER_0;
     write_data[8] = GENERIC_IMU_DEVICE_TRAILER_1;
 
-    /* Flush any prior data */
-    status = uart_flush(handle);
-    if (status == CAN_SUCCESS)
+    /* Write data */
+    bytes = can_write(canDevice);
+    #ifdef GENERIC_IMU_CFG_DEBUG
+    OS_printf("  GENERIC_IMU_CommandDevice[%d] = ", bytes);
+    for (uint32_t i = 0; i < GENERIC_IMU_DEVICE_CMD_SIZE; i++)
     {
-        /* Write data */
-        bytes = can_write(&Generic_imuCan);
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_CommandDevice[%d] = ", bytes);
-            for (uint32_t i = 0; i < GENERIC_IMU_DEVICE_CMD_SIZE; i++)
-            {
-                OS_printf("%02x", write_data[i]);
-            }
-            OS_printf("\n");
-        #endif
-        if (bytes == GENERIC_IMU_DEVICE_CMD_SIZE)
+        OS_printf("%02x", write_data[i]);
+    }
+    OS_printf("\n");
+    #endif
+    if (bytes == GENERIC_IMU_DEVICE_CMD_SIZE)
+    {
+        status = GENERIC_IMU_ReadData(canDevice, GENERIC_IMU_DEVICE_CMD_SIZE);
+        if (status == OS_SUCCESS)
         {
-            status = GENERIC_IMU_ReadData(handle, read_data, GENERIC_IMU_DEVICE_CMD_SIZE);
-            if (status == OS_SUCCESS)
+            /* Confirm echoed response */
+            bytes = 0;
+            while ((bytes < (int32_t) GENERIC_IMU_DEVICE_CMD_SIZE) && (status == OS_SUCCESS))
             {
-                /* Confirm echoed response */
-                bytes = 0;
-                while ((bytes < (int32_t) GENERIC_IMU_DEVICE_CMD_SIZE) && (status == OS_SUCCESS))
+                if (read_data[bytes] != write_data[bytes])
                 {
-                    if (read_data[bytes] != write_data[bytes])
-                    {
-                        status = OS_ERROR;
-                    }
-                    bytes++;
+                    status = OS_ERROR;
                 }
-            } /* GENERIC_IMU_ReadData */
-            else
-            {
-                #ifdef GENERIC_IMU_CFG_DEBUG
-                    OS_printf("GENERIC_IMU_CommandDevice - GENERIC_IMU_ReadData returned %d \n", status);
-                #endif
+                bytes++;
             }
-        } 
+        } /* GENERIC_IMU_ReadData */
         else
         {
             #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("GENERIC_IMU_CommandDevice - uart_write_port returned %d, expected %d \n", bytes, GENERIC_IMU_DEVICE_CMD_SIZE);
+            OS_printf("GENERIC_IMU_CommandDevice - GENERIC_IMU_ReadData returned %d \n", status);
             #endif
-        } /* can_write */
-    } /* uart_flush*/
+        }
+    } 
+    else
+    {
+        #ifdef GENERIC_IMU_CFG_DEBUG
+        OS_printf("GENERIC_IMU_CommandDevice - can_write returned %d, expected %d \n", bytes, GENERIC_IMU_DEVICE_CMD_SIZE);
+        #endif
+    } /* can_write */
     return status;
 }
 
@@ -133,17 +116,17 @@ int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t pay
 /*
 ** Request housekeeping command
 */
-int32_t GENERIC_IMU_RequestHK(int32_t handle, GENERIC_IMU_Device_HK_tlm_t* data)
+int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
     uint8_t read_data[GENERIC_IMU_DEVICE_HK_SIZE] = {0};
 
     /* Command device to send HK */
-    status = GENERIC_IMU_CommandDevice(handle, GENERIC_IMU_DEVICE_REQ_HK_CMD, 0);
+    status = GENERIC_IMU_CommandDevice(canDevice, GENERIC_IMU_DEVICE_REQ_HK_CMD, 0);
     if (status == OS_SUCCESS)
     {
         /* Read HK data */
-        status = GENERIC_IMU_ReadData(handle, read_data, sizeof(read_data));
+        status = GENERIC_IMU_ReadData(canDevice, sizeof(read_data));
         if (status == OS_SUCCESS)
         {
             #ifdef GENERIC_IMU_CFG_DEBUG
@@ -156,8 +139,7 @@ int32_t GENERIC_IMU_RequestHK(int32_t handle, GENERIC_IMU_Device_HK_tlm_t* data)
             #endif
 
             /* Verify data header and trailer */
-            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR_0)     && 
-                (read_data[1]  == GENERIC_IMU_DEVICE_HDR_1)     && 
+            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR)       && 
                 (read_data[14] == GENERIC_IMU_DEVICE_TRAILER_0) && 
                 (read_data[15] == GENERIC_IMU_DEVICE_TRAILER_1) )
             {
@@ -206,17 +188,17 @@ int32_t GENERIC_IMU_RequestHK(int32_t handle, GENERIC_IMU_Device_HK_tlm_t* data)
 /*
 ** Request data command
 */
-int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* data)
+int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
     uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
 
     /* Command device to send HK */
-    status = GENERIC_IMU_CommandDevice(handle, GENERIC_IMU_DEVICE_REQ_DATA_CMD, 0);
+    status = GENERIC_IMU_CommandDevice(canDevice, GENERIC_IMU_DEVICE_REQ_DATA_CMD, 0);
     if (status == OS_SUCCESS)
     {
         /* Read HK data */
-        status = GENERIC_IMU_ReadData(handle, read_data, sizeof(read_data));
+        status = GENERIC_IMU_ReadData(canDevice, sizeof(read_data));
         if (status == OS_SUCCESS)
         {
             #ifdef GENERIC_IMU_CFG_DEBUG
@@ -229,8 +211,7 @@ int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* d
             #endif
 
             /* Verify data header and trailer */
-            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR_0)     && 
-                (read_data[1]  == GENERIC_IMU_DEVICE_HDR_1)     && 
+            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR)       && 
                 (read_data[30] == GENERIC_IMU_DEVICE_TRAILER_0) && 
                 (read_data[31] == GENERIC_IMU_DEVICE_TRAILER_1) )
             {
