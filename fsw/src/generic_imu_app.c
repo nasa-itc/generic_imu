@@ -518,6 +518,22 @@ void GENERIC_IMU_Enable(void)
 //        GENERIC_IMU_AppData.Generic_imuUart.baud = GENERIC_IMU_CFG_BAUDRATE_HZ;
 //        GENERIC_IMU_AppData.Generic_imuUart.access_option = uart_access_flag_RDWR;
 
+        
+        GENERIC_IMU_AppData.Generic_imuCan.handle = GENERIC_IMU_CFG_STRING;
+        GENERIC_IMU_AppData.Generic_imuCan.isUp = CAN_INTERFACE_DOWN;
+        GENERIC_IMU_AppData.Generic_imuCan.loopback = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.listenOnly = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.tripleSampling = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.oneShot = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.berrReporting = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.fd = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.presumeAck = FALSE;
+        GENERIC_IMU_AppData.Generic_imuCan.bitrate = GENERIC_IMU_CFG_CAN_BITRATE;
+        GENERIC_IMU_AppData.Generic_imuCan.second_timeout = GENERIC_IMU_CFG_CAN_TIMEOUT;
+        GENERIC_IMU_AppData.Generic_imuCan.microsecond_timeout = GENERIC_IMU_CFG_CAN_MS_TIMEOUT;
+        GENERIC_IMU_AppData.Generic_imuCan.xfer_us_delay = GENERIC_IMU_CFG_CAN_XFER_US;
+
+
         /* Open device specific protocols */
         status = can_init_dev(&GENERIC_IMU_AppData.Generic_imuCan);
         if (status == OS_SUCCESS)

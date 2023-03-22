@@ -19,27 +19,27 @@ namespace Nos3
 
         /* Get on a protocol bus */
         /* Note: Initialized defaults in case value not found in config file */
-        std::string bus_name = "usart_29";
-        int bus_address = 29;
+        std::string bus_name = "can_0";
+        int node_port = 0;
         if (config.get_child_optional("simulator.hardware-model.connections")) 
         {
             /* Loop through the connections for hardware model */
             BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, config.get_child("simulator.hardware-model.connections"))
             {
                 /* v.second is the child tree (v.first is the name of the child) */
-                if (v.second.get("type", "").compare("usart") == 0)
+                if (v.second.get("type", "").compare("can") == 0)
                 {
                     /* Configuration found */
                     bus_name = v.second.get("bus-name", bus_name);
-                    bus_address = v.second.get("bus_address", bus_address);
+                    node_port = v.second.get("node-port", node_port);
                     break;
                 }
             }
         }
 //        _can_connection.reset(new NosEngine::Can::CanSlave(_hub, config.get("simulator.name", "generic_imu_sim"), connection_string, bus_name)); //This might not be how to do this; I just replaced NosEngine::Uart::Uart with NosEngine::Can::CanSlave.
-//        _can_connection->open(bus_address);
-        _can_connection = new IMUCanSlaveConnection(this, bus_address, connection_string, bus_name);
-        sim_logger->info("Generic_imuHardwareModel::Generic_imuHardwareModel:  Now on CAN bus name %s, port %d.", bus_name.c_str(), bus_address);
+//        _can_connection->open(node_port);
+        _can_connection = new IMUCanSlaveConnection(this, node_port, connection_string, bus_name);
+        sim_logger->info("Generic_imuHardwareModel::Generic_imuHardwareModel:  Now on CAN bus name %s, port %d.", bus_name.c_str(), node_port);
     
         /* Configure protocol callback */
 //        _can_connection->set_read_callback(std::bind(&Generic_imuHardwareModel::determine_can_response, this, std::placeholders::_1, std::placeholders::_2));
@@ -73,7 +73,8 @@ namespace Nos3
     Generic_imuHardwareModel::~Generic_imuHardwareModel(void)
     {        
         /* Close the protocol bus */
-        delete _can_connection; //->close();
+//        _can_connection->close();
+        delete _can_connection;
         _can_connection = nullptr;
 
         /* Clean up the data provider */
@@ -283,21 +284,18 @@ namespace Nos3
                     case 0:
                         /* NOOP */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  NOOP command received!");
-                        return out_data;
                         break;
 
                     case 1:
                         /* Request HK */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send HK command received!");
                         create_generic_imu_hk(out_data);
-                        return out_data;
                         break;
 
                     case 2:
                         /* Request data */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
                         create_generic_imu_data(out_data);
-                        return out_data;
                         break;
 
                     case 3:
@@ -307,14 +305,12 @@ namespace Nos3
                         _config |= in_data[6] << 16;
                         _config |= in_data[7] << 8;
                         _config |= in_data[8];
-                        return out_data;
                         break;
                     
                     default:
                         /* Unused command code */
                         valid = GENERIC_IMU_SIM_ERROR;
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Unused command %d received!", in_data[2]);
-                        return out_data;
                         break;
                 }
             }
@@ -334,8 +330,17 @@ namespace Nos3
 //                _can_connection->can_write(&out_data[0], out_data.size()); //SO IS THIS
             }
         }
-        return out_data;
+    return out_data;
     }
+
+    IMUCanSlaveConnection::IMUCanSlaveConnection(Generic_imuHardwareModel* hm, int bus_address, std::string connection_string, std::string bus_name)
+        : NosEngine::Can::CanSlave(bus_address, connection_string, bus_name)
+    {
+        _hardware_model = hm;
+        _can_out_data = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+        sim_logger->debug("IMUCanSlaveConnection::IMUCanSlaveConnection:  IMUCanSlaveConnection constructor complete");
+    }
+
     size_t IMUCanSlaveConnection::can_read(uint8_t *rbuf, size_t rlen)
     {
         // copy data to buffer
@@ -346,7 +351,7 @@ namespace Nos3
 
     size_t IMUCanSlaveConnection::can_write(const uint8_t *wbuf, size_t wlen)
     {
-        std::vector<uint8_t> in_data(wbuf, wbuf + IMU_CAN_FRAME_SIZE);
+        std::vector<uint8_t> in_data(wbuf, wbuf + _IMU_CAN_FRAME_SIZE);
         _can_out_data = _hardware_model->determine_can_response(in_data);
         return wlen;
     }

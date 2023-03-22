@@ -44,6 +44,7 @@ namespace Nos3
         void create_generic_imu_data(std::vector<uint8_t>& out_data); 
         void command_callback(NosEngine::Common::Message msg); /* Handle backdoor commands and time tick to the simulator */
 
+
         /* Private data members */
         class IMUCanSlaveConnection*                        _can_connection; /* TODO: Finish changing everything else so this is actually CAN and not UART */
         std::unique_ptr<NosEngine::Client::Bus>             _time_bus; /* Standard */
@@ -55,8 +56,6 @@ namespace Nos3
         std::uint32_t                                       _count;
         std::uint32_t                                       _config;
         std::uint32_t                                       _status;
-        
-        #define IMU_CAN_FRAME_SIZE 16
     };
 
     class IMUCanSlaveConnection : public NosEngine::Can::CanSlave
@@ -68,6 +67,7 @@ namespace Nos3
     private:
         Generic_imuHardwareModel* _hardware_model;
         std::vector<uint8_t> _can_out_data;  
+        const uint8_t _IMU_CAN_FRAME_SIZE = 16;
     };
 
 }

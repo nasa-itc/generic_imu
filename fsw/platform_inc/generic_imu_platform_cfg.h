@@ -19,10 +19,17 @@
     **   This needs to be changed from uart to can; how exactly
     **   that will work is unclear.
     */
-    #define GENERIC_IMU_CFG_STRING           "usart_5"
-    #define GENERIC_IMU_CFG_HANDLE           5 
+    #define GENERIC_IMU_CFG_STRING           "can_1"
+    #define GENERIC_IMU_CFG_HANDLE           0 
     #define GENERIC_IMU_CFG_BAUDRATE_HZ      115200
     #define GENERIC_IMU_CFG_MS_TIMEOUT       50            /* Max 255 */
+
+    #define GENERIC_IMU_CFG_CAN_BITRATE                 1000000
+    #define GENERIC_IMU_CFG_CAN_TIMEOUT                 1
+    #define GENERIC_IMU_CFG_CAN_MS_TIMEOUT              100
+    #define GENERIC_IMU_CFG_CAN_XFER_US                 5000
+    #define GENERIC_IMU_CFG_RETRY_ATTEMPTS              3
+
     /* Note: Debug flag disabled (commented out) by default */
     //#define GENERIC_IMU_CFG_DEBUG
 #endif
