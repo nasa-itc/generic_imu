@@ -267,7 +267,7 @@ namespace Nos3
         else
         {
             /* Check if message is incorrect size */
-            if (in_data.size() != 9)
+            if (in_data.size() != 6) 
             {
                 sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command size of %d received!", in_data.size());
                 valid = GENERIC_IMU_SIM_ERROR;
@@ -298,14 +298,15 @@ namespace Nos3
                         create_generic_imu_data(out_data);
                         break;
 
-                    case 3:
-                        /* Configuration */
-                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Configuration command received!");
-                        _config  = in_data[5] << 24;
-                        _config |= in_data[6] << 16;
-                        _config |= in_data[7] << 8;
-                        _config |= in_data[8];
-                        break;
+//                    case 3:
+//                        /* Configuration */
+//                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Configuration command received!");
+//                        _config  = in_data[5] << 24;
+//                        _config |= in_data[6] << 16;
+//                        _config |= in_data[7] << 8;
+//                        _config |= in_data[8];
+//                        break;
+// I AM NOT SURE I SHOULD JUST ELIMINATE THIS, BUT I WILL FOR NOW
                     
                     default:
                         /* Unused command code */
@@ -337,7 +338,7 @@ namespace Nos3
         : NosEngine::Can::CanSlave(bus_address, connection_string, bus_name)
     {
         _hardware_model = hm;
-        _can_out_data = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+        _can_out_data = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         sim_logger->debug("IMUCanSlaveConnection::IMUCanSlaveConnection:  IMUCanSlaveConnection constructor complete");
     }
 

@@ -67,8 +67,6 @@ int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code, uint3
     write_data[4] = payload >> 16;
     write_data[5] = payload >> 8;
     write_data[6] = payload;
-    write_data[7] = GENERIC_IMU_DEVICE_TRAILER_0;
-    write_data[8] = GENERIC_IMU_DEVICE_TRAILER_1;
 
     /* Write data */
     bytes = can_write(canDevice);
@@ -139,9 +137,7 @@ int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t
             #endif
 
             /* Verify data header and trailer */
-            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR)       && 
-                (read_data[14] == GENERIC_IMU_DEVICE_TRAILER_0) && 
-                (read_data[15] == GENERIC_IMU_DEVICE_TRAILER_1) )
+            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
             {
                 data->DeviceCounter  = read_data[2] << 24;
                 data->DeviceCounter |= read_data[3] << 16;
@@ -211,9 +207,7 @@ int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_t
             #endif
 
             /* Verify data header and trailer */
-            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR)       && 
-                (read_data[30] == GENERIC_IMU_DEVICE_TRAILER_0) && 
-                (read_data[31] == GENERIC_IMU_DEVICE_TRAILER_1) )
+            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
             {
                 data->DeviceCounter  = read_data[2] << 24;
                 data->DeviceCounter |= read_data[3] << 16;

@@ -20,25 +20,20 @@ The protocol, commands, and responses of the component are captured below.
 ## Protocol
 The protocol in use is CAN.
 The device is speak when spoken too.
-All communications with the device require / contain a header of 0xDEAD and a trailer of 0xBEEF.
 
 ## Commands
 All commands received by the device are echoed back to the sender to confirm receipt.
 Should commmands involve a reply, the device immediately sends the reply after the command echo.
 Device commands are all formatted in the same manner and are fixed in size:
-* uint16, 0xDEAD
 * uint8, command identifier
   - (0) Get Housekeeping
   - (1) Get Generic_imu
-  - (2) Set Configuration
 * uint32, command payload
-  - Unused for all but set configuration command
-* uint16, 0xBEEF
+  - Unused 
 
 ## Response
 Response formats are as follows:
 * Housekeeping
-  - uint16, 0xDEAD
   - uint32, Command Counter
     * Increments for each command received
   - uint32, Configuration
@@ -46,9 +41,7 @@ Response formats are as follows:
   - uint32, Status
     * Self reported status of the component where zero is completely healthy and each bit represents different errors
     * No means to clear / set status except for a power cycle to the device
-  - uint16, 0xBEEF
 * Generic_imu
-  - uint16, 0xDEAD
   - uint32, Command Counter
     * Increments for each command received
   - uint16, Data X
@@ -57,7 +50,6 @@ Response formats are as follows:
     * X component of generic_imu data
   - uint16, Data Z
     * X component of generic_imu data
-  - uint16, 0xBEEF
 
 # Device Communications (CAN)
 

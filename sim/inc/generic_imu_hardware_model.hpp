@@ -67,7 +67,7 @@ namespace Nos3
     private:
         Generic_imuHardwareModel* _hardware_model;
         std::vector<uint8_t> _can_out_data;  
-        const uint8_t _IMU_CAN_FRAME_SIZE = 16;
+        const uint8_t _IMU_CAN_FRAME_SIZE = 14;
     };
 
 }

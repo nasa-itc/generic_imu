@@ -27,12 +27,8 @@
 #define GENERIC_IMU_DEVICE_REQ_DATA_CMD     0x02
 #define GENERIC_IMU_DEVICE_CFG_CMD          0x03
 
-#define GENERIC_IMU_DEVICE_TRAILER          0xBEEF
-#define GENERIC_IMU_DEVICE_TRAILER_0        0xBE
-#define GENERIC_IMU_DEVICE_TRAILER_1        0xEF
-
-#define GENERIC_IMU_DEVICE_HDR_TRL_LEN      4
-#define GENERIC_IMU_DEVICE_CMD_SIZE         9
+#define GENERIC_IMU_DEVICE_HDR_TRL_LEN      2
+#define GENERIC_IMU_DEVICE_CMD_SIZE         6
 
 /*
 ** GENERIC_IMU device housekeeping telemetry definition
