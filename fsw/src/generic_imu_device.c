@@ -61,12 +61,11 @@ int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code, uint3
 
     /* Prepare command */
     write_data[0] = GENERIC_IMU_DEVICE_HDR;
-//    write_data[1] = GENERIC_IMU_DEVICE_HDR_1; THIS WILL HAVE TO CHANGE
-    write_data[2] = cmd_code;
-    write_data[3] = payload >> 24;
-    write_data[4] = payload >> 16;
-    write_data[5] = payload >> 8;
-    write_data[6] = payload;
+    write_data[1] = cmd_code;
+    write_data[2] = payload >> 24;
+    write_data[3] = payload >> 16;
+    write_data[4] = payload >> 8;
+    write_data[5] = payload;
 
     /* Write data */
     bytes = can_write(canDevice);

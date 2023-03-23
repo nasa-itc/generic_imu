@@ -386,7 +386,7 @@ void GENERIC_IMU_ProcessGroundCommand(void)
 
 
 /*
-** Process Telemetry Request - Triggered in response to a telemetery request
+** Process Telemetry Request - Triggered in response to a telemetry request
 ** TODO: Add additional telemetry required by the specific component
 */
 void GENERIC_IMU_ProcessTelemetryRequest(void)
@@ -498,7 +498,6 @@ void GENERIC_IMU_ResetCounters(void)
 
 /*
 ** Enable Component
-** TODO: Edit for your specific component implementation
 */
 void GENERIC_IMU_Enable(void)
 {
@@ -509,15 +508,7 @@ void GENERIC_IMU_Enable(void)
     {
         /*
         ** Initialize hardware interface data
-        ** TODO: Make specific to your application depending on protocol in use
-        ** Note that other components provide examples for the different protocols available
         */ 
-//        GENERIC_IMU_AppData.Generic_imuUart.deviceString = GENERIC_IMU_CFG_STRING;
-//        GENERIC_IMU_AppData.Generic_imuUart.handle = GENERIC_IMU_CFG_HANDLE;
-//        GENERIC_IMU_AppData.Generic_imuUart.isOpen = PORT_CLOSED;
-//        GENERIC_IMU_AppData.Generic_imuUart.baud = GENERIC_IMU_CFG_BAUDRATE_HZ;
-//        GENERIC_IMU_AppData.Generic_imuUart.access_option = uart_access_flag_RDWR;
-
         
         GENERIC_IMU_AppData.Generic_imuCan.handle = GENERIC_IMU_CFG_STRING;
         GENERIC_IMU_AppData.Generic_imuCan.isUp = CAN_INTERFACE_DOWN;
@@ -559,7 +550,6 @@ void GENERIC_IMU_Enable(void)
 
 /*
 ** Disable Component
-** TODO: Edit for your specific component implementation
 */
 void GENERIC_IMU_Disable(void)
 {
@@ -568,7 +558,7 @@ void GENERIC_IMU_Disable(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
-        /* Open device specific protocols */
+        /* Close device specific protocols */
         status = can_close_device(&GENERIC_IMU_AppData.Generic_imuCan);
         if (status == OS_SUCCESS)
         {
