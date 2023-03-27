@@ -288,6 +288,7 @@ void GENERIC_IMU_ProcessGroundCommand(void)
 {
     int32 status = OS_SUCCESS;
 
+
     /*
     ** MsgId is only needed if the command code is not recognized. See default case
     */
@@ -460,6 +461,8 @@ void GENERIC_IMU_ReportDeviceTelemetry(void)
 {
     int32 status = OS_SUCCESS;
 
+    imu_frame_prep(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Cmd_t*) GENERIC_IMU_AppData.MsgPtr);
+
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
@@ -524,6 +527,7 @@ void GENERIC_IMU_Enable(void)
         GENERIC_IMU_AppData.Generic_imuCan.microsecond_timeout = GENERIC_IMU_CFG_CAN_MS_TIMEOUT;
         GENERIC_IMU_AppData.Generic_imuCan.xfer_us_delay = GENERIC_IMU_CFG_CAN_XFER_US;
 
+        printf("Inside of the app enable method\n");
 
         /* Open device specific protocols */
         status = can_init_dev(&GENERIC_IMU_AppData.Generic_imuCan);

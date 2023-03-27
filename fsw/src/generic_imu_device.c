@@ -12,6 +12,25 @@
 #include "generic_imu_device.h"
 
 
+/*
+** Helper Function
+*/
+void imu_frame_prep(can_info_t *device, GENERIC_IMU_Cmd_t *cmd)
+{
+    /* TX Frame */
+    device->tx_frame.can_id = ((uint32_t)(cmd->msg_type & 0x1F) << 24) + 
+                              ((uint32_t)(cmd->cmd_id) << 16) + 
+                              ((uint32_t)(cmd->src_mask) << 8) + 
+                              ((uint32_t)(cmd->dest_mask));    
+    device->tx_frame.can_dlc = cmd->data_len;
+    CFE_PSP_MemCpy((void*)device->tx_frame.data, cmd->data, CAN_MAX_DLEN);
+    
+    /* RX Frame */
+    device->rx_frame.can_id = 0;
+    device->rx_frame.can_dlc = 0;
+    CFE_PSP_MemSet((void*)device->rx_frame.data, 0x00, CAN_MAX_DLEN);
+}
+
 /* 
 ** Generic read data from device
 */
@@ -154,7 +173,7 @@ int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t
                 data->DeviceStatus |= read_data[13];
 
                 #ifdef GENERIC_IMU_CFG_DEBUG
-                    OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
+                    OS_printf("  Header  = 0x%02x      \n", read_data[0]);
                     OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
                     OS_printf("  Config  = 0x%08x      \n", data->DeviceConfig);
                     OS_printf("  Status  = 0x%08x      \n", data->DeviceStatus);

@@ -279,7 +279,7 @@ namespace Nos3
             if (valid == GENERIC_IMU_SIM_SUCCESS)
             {   
                 /* Process command */
-                switch (in_data[2])
+                switch (in_data[1])
                 {
                     case 0:
                         /* NOOP */
@@ -311,7 +311,7 @@ namespace Nos3
                     default:
                         /* Unused command code */
                         valid = GENERIC_IMU_SIM_ERROR;
-                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Unused command %d received!", in_data[2]);
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Unused command %d received!", in_data[1]);
                         break;
                 }
             }
