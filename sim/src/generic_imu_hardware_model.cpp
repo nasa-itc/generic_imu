@@ -272,14 +272,22 @@ namespace Nos3
                 sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command size of %d received!", in_data.size());
                 valid = GENERIC_IMU_SIM_ERROR;
             }
-            // If I were to check the header, this is where I would want to do it.
-            // Ditto for the trailer. The header (first chunk, at least) should typically
-            // be 8, and the second chunk should be 0. The first 8 bits should be 80.
+            else
+            {
+                if (in_data[4] != _IMU_CAN_CMD_SIZE)
+                {
+                    sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command length of %d received!", in_data[4]);
+                    valid = GENERIC_IMU_SIM_ERROR;
+                }
+                // If I were to check the header, this is where I would want to do it.
+                // Ditto for the trailer. The header (first chunk, at least) should typically
+                // be 8, and the second chunk should be 0. The first 8 bits should be 80.
+            }
 
             if (valid == GENERIC_IMU_SIM_SUCCESS)
             {   
                 /* Process command */
-                switch (in_data[1])
+                switch (in_data[9])
                 {
                     case 0:
                         /* NOOP */

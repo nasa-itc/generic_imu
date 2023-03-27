@@ -107,11 +107,10 @@ typedef struct
 /*
 ** Prototypes
 */
+void GENERIC_IMU_FramePrep(can_info_t *device, uint8_t* data, uint8_t data_len);
 int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length);
 int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd, uint32_t payload);
 int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data);
 int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data);
-
-void imu_frame_prep(can_info_t *device, GENERIC_IMU_Cmd_t *cmd);
 
 #endif /* _GENERIC_IMU_DEVICE_H_ */

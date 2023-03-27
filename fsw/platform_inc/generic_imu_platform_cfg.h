@@ -31,7 +31,7 @@
     #define GENERIC_IMU_CFG_RETRY_ATTEMPTS              3
 
     /* Note: Debug flag disabled (commented out) by default */
-    //#define GENERIC_IMU_CFG_DEBUG
+    #define GENERIC_IMU_CFG_DEBUG
 #endif
 
 #endif /* _GENERIC_IMU_PLATFORM_CFG_H_ */

@@ -461,8 +461,6 @@ void GENERIC_IMU_ReportDeviceTelemetry(void)
 {
     int32 status = OS_SUCCESS;
 
-    imu_frame_prep(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Cmd_t*) GENERIC_IMU_AppData.MsgPtr);
-
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {

@@ -15,15 +15,15 @@
 /*
 ** Helper Function
 */
-void imu_frame_prep(can_info_t *device, GENERIC_IMU_Cmd_t *cmd)
+void GENERIC_IMU_FramePrep(can_info_t *device, uint8_t* data, uint8_t data_len)
 {
     /* TX Frame */
-    device->tx_frame.can_id = ((uint32_t)(cmd->msg_type & 0x1F) << 24) + 
-                              ((uint32_t)(cmd->cmd_id) << 16) + 
-                              ((uint32_t)(cmd->src_mask) << 8) + 
-                              ((uint32_t)(cmd->dest_mask));    
-    device->tx_frame.can_dlc = cmd->data_len;
-    CFE_PSP_MemCpy((void*)device->tx_frame.data, cmd->data, CAN_MAX_DLEN);
+    //device->tx_frame.can_id = ((uint32_t)(cmd->msg_type & 0x1F) << 24) + 
+    //                          ((uint32_t)(cmd->cmd_id) << 16) + 
+    //                          ((uint32_t)(cmd->src_mask) << 8) + 
+    //                          ((uint32_t)(cmd->dest_mask));    
+    device->tx_frame.can_dlc = data_len;
+    CFE_PSP_MemCpy((void*)device->tx_frame.data, data, CAN_MAX_DLEN);
     
     /* RX Frame */
     device->rx_frame.can_id = 0;
@@ -86,17 +86,19 @@ int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code, uint3
     write_data[4] = payload >> 8;
     write_data[5] = payload;
 
+    GENERIC_IMU_FramePrep(canDevice, write_data, GENERIC_IMU_DEVICE_CMD_SIZE);
+
     /* Write data */
-    bytes = can_write(canDevice);
+    status = can_write(canDevice);
     #ifdef GENERIC_IMU_CFG_DEBUG
-    OS_printf("  GENERIC_IMU_CommandDevice[%d] = ", bytes);
+    OS_printf("  GENERIC_IMU_CommandDevice[%d] = ", canDevice->rx_frame.can_dlc);
     for (uint32_t i = 0; i < GENERIC_IMU_DEVICE_CMD_SIZE; i++)
     {
         OS_printf("%02x", write_data[i]);
     }
     OS_printf("\n");
     #endif
-    if (bytes == GENERIC_IMU_DEVICE_CMD_SIZE)
+    if (canDevice->rx_frame.can_dlc == GENERIC_IMU_DEVICE_CMD_SIZE)
     {
         status = GENERIC_IMU_ReadData(canDevice, GENERIC_IMU_DEVICE_CMD_SIZE);
         if (status == OS_SUCCESS)
