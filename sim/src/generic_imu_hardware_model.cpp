@@ -249,9 +249,9 @@ namespace Nos3
     /* Protocol callback */
     std::vector<uint8_t> Generic_imuHardwareModel::determine_can_response(const std::vector<uint8_t>& in_data)
     {
-        std::vector<uint8_t> out_data; 
+        std::vector<uint8_t> out_data;
+        std::vector<uint8_t> imu_data; 
         std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
-        
         std::uint32_t rcv_config;
 
         /* Retrieve data and log in man readable format */
@@ -297,13 +297,33 @@ namespace Nos3
                     case 1:
                         /* Request HK */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send HK command received!");
-                        create_generic_imu_hk(out_data);
+                        create_generic_imu_hk(imu_data);
+                        out_data.clear();
+                        out_data.push_back(0x00); // CAN_ID[0]
+                        out_data.push_back(0x00); // CAN_ID[1]
+                        out_data.push_back(0x00); // CAN_ID[2]
+                        out_data.push_back(0x00); // CAN_ID[3]
+                        out_data.push_back(imu_data.size());
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
                         break;
 
                     case 2:
                         /* Request data */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
-                        create_generic_imu_data(out_data);
+                        create_generic_imu_data(imu_data);
+                        out_data.clear();
+                        out_data.push_back(0x00); // CAN_ID[0]
+                        out_data.push_back(0x00); // CAN_ID[1]
+                        out_data.push_back(0x00); // CAN_ID[2]
+                        out_data.push_back(0x00); // CAN_ID[3]
+                        out_data.push_back(imu_data.size());
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
                         break;
 
 //                    case 3:
@@ -355,6 +375,7 @@ namespace Nos3
         // copy data to buffer
         _can_out_data.resize(rlen);
         std::copy(_can_out_data.begin(), _can_out_data.begin() + _can_out_data.size(), rbuf);
+        sim_logger->debug("Generic_imuHardwareModel::can_read[%d]: %s", rlen, SimIHardwareModel::uint8_vector_to_hex_string(_can_out_data).c_str());
         return rlen;
     }
 
