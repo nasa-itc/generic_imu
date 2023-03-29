@@ -349,29 +349,7 @@ void GENERIC_IMU_ProcessGroundCommand(void)
                 GENERIC_IMU_Disable();
             }
             break;
-
-        /*
-        ** TODO: Edit and add more command codes as appropriate for the application
-        ** Set Configuration Command
-        ** Note that this is an example of a command that has additional arguments
-        */
-        case GENERIC_IMU_CONFIG_CC:
-            if (GENERIC_IMU_VerifyCmdLength(GENERIC_IMU_AppData.MsgPtr, sizeof(GENERIC_IMU_Config_cmd_t)) == OS_SUCCESS)
-            {
-                CFE_EVS_SendEvent(GENERIC_IMU_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "GENERIC_IMU: Configuration command received");
-                /* Command device to send HK */
-                status = GENERIC_IMU_CommandDevice(&GENERIC_IMU_AppData.Generic_imuCan, GENERIC_IMU_DEVICE_CFG_CMD, ((GENERIC_IMU_Config_cmd_t*) GENERIC_IMU_AppData.MsgPtr)->DeviceCfg);
-                if (status == OS_SUCCESS)
-                {
-                    GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
-                }
-                else
-                {
-                    GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
-                }
-            }
-            break;
-
+            
         /*
         ** Invalid Command Codes
         */

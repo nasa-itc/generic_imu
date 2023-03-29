@@ -376,12 +376,14 @@ namespace Nos3
         _can_out_data.resize(rlen);
         std::copy(_can_out_data.begin(), _can_out_data.begin() + _can_out_data.size(), rbuf);
         sim_logger->debug("Generic_imuHardwareModel::can_read[%d]: %s", rlen, SimIHardwareModel::uint8_vector_to_hex_string(_can_out_data).c_str());
+        sim_logger->debug("--");
         return rlen;
     }
 
     size_t IMUCanSlaveConnection::can_write(const uint8_t *wbuf, size_t wlen)
     {
         std::vector<uint8_t> in_data(wbuf, wbuf + _IMU_CAN_FRAME_SIZE);
+        sim_logger->debug("Generic_imuHardwareModel::can_write[%d]: %s", wlen, SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str());
         _can_out_data = _hardware_model->determine_can_response(in_data);
         return wlen;
     }

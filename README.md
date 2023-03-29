@@ -25,11 +25,11 @@ The device is speak when spoken too.
 All commands received by the device are echoed back to the sender to confirm receipt.
 Should commmands involve a reply, the device immediately sends the reply after the command echo.
 Device commands are all formatted in the same manner and are fixed in size:
+* uint8, command header
+  - 0x80
 * uint8, command identifier
   - (0) Get Housekeeping
   - (1) Get Generic_imu
-* uint32, command payload
-  - Unused 
 
 ## Response
 Response formats are as follows:

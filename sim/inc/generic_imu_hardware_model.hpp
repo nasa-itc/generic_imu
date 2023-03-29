@@ -57,7 +57,7 @@ namespace Nos3
         std::uint32_t                                       _config;
         std::uint32_t                                       _status;
 
-        const uint8_t _IMU_CAN_CMD_SIZE = 6;
+        const uint8_t _IMU_CAN_CMD_SIZE = 2;
     };
 
     class IMUCanSlaveConnection : public NosEngine::Can::CanSlave

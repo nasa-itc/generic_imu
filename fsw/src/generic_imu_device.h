@@ -28,7 +28,7 @@
 #define GENERIC_IMU_DEVICE_CFG_CMD          0x03
 
 #define GENERIC_IMU_DEVICE_HDR_TRL_LEN      1
-#define GENERIC_IMU_DEVICE_CMD_SIZE         6
+#define GENERIC_IMU_DEVICE_CMD_SIZE         2
 
 /*
 ** GENERIC_IMU device housekeeping telemetry definition
@@ -109,7 +109,7 @@ typedef struct
 */
 void GENERIC_IMU_FramePrep(can_info_t *device, uint8_t* data, uint8_t data_len);
 int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length);
-int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd, uint32_t payload);
+int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code);
 int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data);
 int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data);
 
