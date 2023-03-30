@@ -169,12 +169,13 @@ namespace Nos3
 
 
     /* Custom function to prepare the Generic_imu Data */
-    void Generic_imuHardwareModel::create_generic_imu_data(std::vector<uint8_t>& out_data)
+    void Generic_imuHardwareModel::create_generic_imu_data(std::vector<uint8_t>& out_data, uint8_t axis)
     {
         boost::shared_ptr<Generic_imuDataPoint> data_point = boost::dynamic_pointer_cast<Generic_imuDataPoint>(_generic_imu_dp->get_data_point());
+        std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
 
         /* Prepare data size */
-        out_data.resize(28, 0x00); //Was originally 14
+        out_data.resize(14, 0x00); //Was originally 14
 
         // Header and trailer removed from this one as well.
        
@@ -192,57 +193,67 @@ namespace Nos3
         ** Floating poing numbers are extremely problematic 
         **   (https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html)
         ** Most hardware transmits some type of unsigned integer (e.g. from an ADC), so that's what we've done
-        ** Scale each of the x, y, z (which are in the range [-1.0, 1.0]) by 32767, 
-        **   and add 32768 so that the result fits in a uint16
         */
-//        uint16_t x   = (uint16_t)(data_point->get_generic_imu_data_x()*32767.0 + 32768.0);
-//        out_data[6]  = (x >> 8) & 0x00FF;
-//        out_data[7]  =  x       & 0x00FF;
-        printf("X linear acceleration: %d\n", data_point->get_generic_imu_acc_x());
-        printf("X angular acceleration: %d\n", data_point->get_generic_imu_gyro_x());
-        printf("Y linear acceleration: %d\n", data_point->get_generic_imu_acc_y());
-        printf("Y angular acceleration: %d\n", data_point->get_generic_imu_gyro_y());
-        printf("Z linear acceleration: %d\n", data_point->get_generic_imu_acc_z());
-        printf("Z angular acceleration: %d\n", data_point->get_generic_imu_gyro_z());
+        switch (axis)
+        {
+            case 2:
+                {
+                    printf("X linear acceleration: %d\n", data_point->get_generic_imu_acc_x());
+                    printf("X angular acceleration: %d\n", data_point->get_generic_imu_gyro_x());
+                    uint32_t x_linear = (uint32_t)((data_point->get_generic_imu_acc_x())*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
+                    out_data[ 4] = (x_linear >> 24) & 0x00FF;
+                    out_data[ 5] = (x_linear >> 16) & 0x00FF;
+                    out_data[ 6] = (x_linear >> 8 ) & 0x00FF;
+                    out_data[ 7] =  x_linear        & 0x00FF;
+                    uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
+                    out_data[ 8] = (x_angular >> 24) & 0x00FF;
+                    out_data[ 9] = (x_angular >> 16) & 0x00FF;
+                    out_data[10] = (x_angular >> 8 ) & 0x00FF;
+                    out_data[11] =  x_angular        & 0x00FF;
+                    break;
+                }
 
-        uint32_t x_linear = (uint32_t)(data_point->get_generic_imu_acc_x()*8338607.0 + 8338608.0); //I am not sure of this conversion strategy, and it is the same one I use everywhere below.
-        out_data[ 4] = (x_linear >> 24) & 0x00FF;
-        out_data[ 5] = (x_linear >> 16) & 0x00FF;
-        out_data[ 6] = (x_linear >> 8 ) & 0x00FF;
-        out_data[ 7] =  x_linear        & 0x00FF;
-        uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*8338607.0 + 8338608.0); 
-        out_data[ 8] = (x_angular >> 24) & 0x00FF;
-        out_data[ 9] = (x_angular >> 16) & 0x00FF;
-        out_data[10] = (x_angular >> 8 ) & 0x00FF;
-        out_data[11] =  x_angular        & 0x00FF;
-        uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*8338607.0 + 8338608.0); 
-        out_data[12] = (y_linear >> 24) & 0x00FF;
-        out_data[13] = (y_linear >> 16) & 0x00FF;
-        out_data[14] = (y_linear >> 8 ) & 0x00FF;
-        out_data[15] =  y_linear        & 0x00FF;
-        uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*8338607.0 + 8338608.0); 
-        out_data[16] = (y_angular >> 24) & 0x00FF;
-        out_data[17] = (y_angular >> 16) & 0x00FF;
-        out_data[18] = (y_angular >> 8 ) & 0x00FF;
-        out_data[19] =  y_angular        & 0x00FF;
-        uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*8338607.0 + 8338608.0); 
-        out_data[20] = (z_linear >> 24) & 0x00FF;
-        out_data[21] = (z_linear >> 16) & 0x00FF;
-        out_data[22] = (z_linear >> 8 ) & 0x00FF;
-        out_data[23] =  z_linear        & 0x00FF;
-        uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*8338607.0 + 8338608.0); 
-        out_data[24] = (z_angular >> 24) & 0x00FF;
-        out_data[25] = (z_angular >> 16) & 0x00FF;
-        out_data[26] = (z_angular >> 8 ) & 0x00FF;
-        out_data[27] =  z_angular        & 0x00FF;
+            case 3:
+                {
+                    printf("Y linear acceleration: %d\n", data_point->get_generic_imu_acc_y());
+                    printf("Y angular acceleration: %d\n", data_point->get_generic_imu_gyro_y());
+                    uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
+                    out_data[ 4] = (y_linear >> 24) & 0x00FF;
+                    out_data[ 5] = (y_linear >> 16) & 0x00FF;
+                    out_data[ 6] = (y_linear >> 8 ) & 0x00FF;
+                    out_data[ 7] =  y_linear        & 0x00FF;
+                    uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
+                    out_data[ 8] = (y_angular >> 24) & 0x00FF;
+                    out_data[ 9] = (y_angular >> 16) & 0x00FF;
+                    out_data[10] = (y_angular >> 8 ) & 0x00FF;
+                    out_data[11] =  y_angular        & 0x00FF;
+                    break;
+                }
+       
+            case 4:
+                {
+                    printf("Z linear acceleration: %d\n", data_point->get_generic_imu_acc_z());
+                    printf("Z angular acceleration: %d\n", data_point->get_generic_imu_gyro_z());
+                    uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
+                    out_data[ 4] = (z_linear >> 24) & 0x00FF;
+                    out_data[ 5] = (z_linear >> 16) & 0x00FF;
+                    out_data[ 6] = (z_linear >> 8 ) & 0x00FF;
+                    out_data[ 7] =  z_linear        & 0x00FF;
+                    uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*_ANG_CONV_CONST + _ANG_CONV_CONST*400); 
+                    out_data[ 8] = (z_angular >> 24) & 0x00FF;
+                    out_data[ 9] = (z_angular >> 16) & 0x00FF;
+                    out_data[10] = (z_angular >> 8 ) & 0x00FF;
+                    out_data[11] =  z_angular        & 0x00FF;
+                    break;
+                }
 
-//        uint16_t y   = (uint16_t)(data_point->get_generic_imu_data_y()*8338607.0 + 8338608.0);
-//        out_data[8]  = (y >> 8) & 0x00FF;
-//        out_data[9]  =  y       & 0x00FF;
-//        uint16_t z   = (uint16_t)(data_point->get_generic_imu_data_z()*8338607.0 + 8338608.0);
-//        out_data[10] = (z >> 8) & 0x00FF;
-//        out_data[11] =  z       & 0x00FF;
+            default:
+                /* Unused command code */
+                valid = GENERIC_IMU_SIM_ERROR;
+                sim_logger->debug("Generic_imuHardwareModel::create_generic_imu_data:  Fake axis %d received!", axis);
+                break;
 
+        }
     }
 
 
@@ -313,7 +324,7 @@ namespace Nos3
                     case 2:
                         /* Request data */
                         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
-                        create_generic_imu_data(imu_data);
+                        create_generic_imu_data(imu_data, 2);
                         out_data.clear();
                         out_data.push_back(0x00); // CAN_ID[0]
                         out_data.push_back(0x00); // CAN_ID[1]
@@ -325,6 +336,39 @@ namespace Nos3
                         out_data.push_back(0x00); // Pad
                         out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
                         break;
+
+                    case 3:
+                        /* Request data */
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
+                        create_generic_imu_data(imu_data, 3);
+                        out_data.clear();
+                        out_data.push_back(0x00); // CAN_ID[0]
+                        out_data.push_back(0x00); // CAN_ID[1]
+                        out_data.push_back(0x00); // CAN_ID[2]
+                        out_data.push_back(0x00); // CAN_ID[3]
+                        out_data.push_back(imu_data.size());
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
+                        break;
+
+                    case 4:
+                        /* Request data */
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
+                        create_generic_imu_data(imu_data, 4);
+                        out_data.clear();
+                        out_data.push_back(0x00); // CAN_ID[0]
+                        out_data.push_back(0x00); // CAN_ID[1]
+                        out_data.push_back(0x00); // CAN_ID[2]
+                        out_data.push_back(0x00); // CAN_ID[3]
+                        out_data.push_back(imu_data.size());
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.push_back(0x00); // Pad
+                        out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
+                        break;
+
 
 //                    case 3:
 //                        /* Configuration */

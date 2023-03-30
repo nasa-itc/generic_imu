@@ -24,8 +24,10 @@
 
 #define GENERIC_IMU_DEVICE_NOOP_CMD         0x00
 #define GENERIC_IMU_DEVICE_REQ_HK_CMD       0x01
-#define GENERIC_IMU_DEVICE_REQ_DATA_CMD     0x02
-#define GENERIC_IMU_DEVICE_CFG_CMD          0x03
+#define GENERIC_IMU_DEVICE_REQ_X_DATA_CMD   0x02
+#define GENERIC_IMU_DEVICE_REQ_Y_DATA_CMD   0x03
+#define GENERIC_IMU_DEVICE_REQ_Z_DATA_CMD   0x04
+//#define GENERIC_IMU_DEVICE_CFG_CMD          0x03
 
 #define GENERIC_IMU_DEVICE_HDR_TRL_LEN      1
 #define GENERIC_IMU_DEVICE_CMD_SIZE         2
@@ -92,12 +94,16 @@ typedef struct
 typedef struct
 {
     uint32_t  DeviceCounter;
-    float     XLinearAcc;
-    float     XAngularAcc;
-    float     YLinearAcc;
-    float     YAngularAcc;
-    float     ZLinearAcc;
-    float     ZAngularAcc;
+    
+    GENERIC_IMU_Device_X_Data_t X_Data;
+    GENERIC_IMU_Device_Y_Data_t Y_Data;
+    GENERIC_IMU_Device_Z_Data_t Z_Data;
+//    float     XLinearAcc;
+//    float     XAngularAcc;
+//    float     YLinearAcc;
+//    float     YAngularAcc;
+//    float     ZLinearAcc;
+//    float     ZAngularAcc;
 
 } OS_PACK GENERIC_IMU_Device_Data_tlm_t;
 #define GENERIC_IMU_DEVICE_DATA_LNGTH sizeof ( GENERIC_IMU_Device_Data_tlm_t )
@@ -112,5 +118,9 @@ int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length);
 int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code);
 int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data);
 int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data);
+int32_t GENERIC_IMU_RequestXData(can_info_t *canDevice, GENERIC_IMU_Device_X_Data_t* data);
+int32_t GENERIC_IMU_RequestYData(can_info_t *canDevice, GENERIC_IMU_Device_Y_Data_t* data);
+int32_t GENERIC_IMU_RequestZData(can_info_t *canDevice, GENERIC_IMU_Device_Z_Data_t* data);
+
 
 #endif /* _GENERIC_IMU_DEVICE_H_ */

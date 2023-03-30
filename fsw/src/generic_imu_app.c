@@ -442,7 +442,10 @@ void GENERIC_IMU_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
-        status = GENERIC_IMU_RequestData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Data_tlm_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu);
+//        status = GENERIC_IMU_RequestData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Data_tlm_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu);
+        status = GENERIC_IMU_RequestXData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_X_Data_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu.X_Data);
+        status = GENERIC_IMU_RequestYData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Y_Data_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu.Y_Data);
+        status = GENERIC_IMU_RequestZData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Z_Data_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu.Z_Data);
         if (status == OS_SUCCESS)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
