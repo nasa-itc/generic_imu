@@ -175,9 +175,8 @@ namespace Nos3
         std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
 
         /* Prepare data size */
-        out_data.resize(14, 0x00); //Was originally 14
+        out_data.resize(14, 0x00); 
 
-        // Header and trailer removed from this one as well.
        
         /* Sequence count */
         out_data[0] = (_count >> 24) & 0x000000FF; 
@@ -188,7 +187,7 @@ namespace Nos3
         /* 
         ** Payload 
         ** 
-        ** Device is big engian (most significant byte first)
+        ** Device is big endian (most significant byte first)
         ** Assuming data is valid regardless of dynamic / environmental data
         ** Floating poing numbers are extremely problematic 
         **   (https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html)
@@ -198,8 +197,8 @@ namespace Nos3
         {
             case 2:
                 {
-                    printf("X linear acceleration: %d\n", data_point->get_generic_imu_acc_x());
-                    printf("X angular acceleration: %d\n", data_point->get_generic_imu_gyro_x());
+                    printf("X linear acceleration: %f\n", data_point->get_generic_imu_acc_x());
+                    printf("X rotational rate: %f\n", data_point->get_generic_imu_gyro_x());
                     uint32_t x_linear = (uint32_t)((data_point->get_generic_imu_acc_x())*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     out_data[ 4] = (x_linear >> 24) & 0x00FF;
                     out_data[ 5] = (x_linear >> 16) & 0x00FF;
@@ -215,8 +214,8 @@ namespace Nos3
 
             case 3:
                 {
-                    printf("Y linear acceleration: %d\n", data_point->get_generic_imu_acc_y());
-                    printf("Y angular acceleration: %d\n", data_point->get_generic_imu_gyro_y());
+                    printf("Y linear acceleration: %f\n", data_point->get_generic_imu_acc_y());
+                    printf("Y rotational rate: %f\n", data_point->get_generic_imu_gyro_y());
                     uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     out_data[ 4] = (y_linear >> 24) & 0x00FF;
                     out_data[ 5] = (y_linear >> 16) & 0x00FF;
@@ -232,8 +231,8 @@ namespace Nos3
        
             case 4:
                 {
-                    printf("Z linear acceleration: %d\n", data_point->get_generic_imu_acc_z());
-                    printf("Z angular acceleration: %d\n", data_point->get_generic_imu_gyro_z());
+                    printf("Z linear acceleration: %f\n", data_point->get_generic_imu_acc_z());
+                    printf("Z rotational rate: %f\n", data_point->get_generic_imu_gyro_z());
                     uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     out_data[ 4] = (z_linear >> 24) & 0x00FF;
                     out_data[ 5] = (z_linear >> 16) & 0x00FF;

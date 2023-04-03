@@ -114,7 +114,7 @@ int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t
         */
 
         /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
+        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
         {
             data->DeviceCounter  = read_data[2] << 24;
             data->DeviceCounter |= read_data[3] << 16;
@@ -171,7 +171,7 @@ int32_t GENERIC_IMU_RequestXData(can_info_t *canDevice, GENERIC_IMU_Device_X_Dat
         #endif
 
         /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
+        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
         {
 //            data->DeviceCounter  = read_data[2] << 24;
 //            data->DeviceCounter |= read_data[3] << 16;
@@ -193,8 +193,8 @@ int32_t GENERIC_IMU_RequestXData(can_info_t *canDevice, GENERIC_IMU_Device_X_Dat
             #ifdef GENERIC_IMU_CFG_DEBUG
                 OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
 //                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear X  = 0x%04x, %d  \n", data->XLinearAcc, data->XLinearAcc);
-                OS_printf("  Angular X = 0x%04x, %d  \n", data->XAngularAcc, data->XAngularAcc);
+                OS_printf("  Linear X  = 0x%04x, %f  \n", data->XLinearAcc, data->XLinearAcc);
+                OS_printf("  Angular X = 0x%04x, %f  \n", data->XAngularAcc, data->XAngularAcc);
                 OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
             #endif
         }
@@ -230,7 +230,7 @@ int32_t GENERIC_IMU_RequestYData(can_info_t *canDevice, GENERIC_IMU_Device_Y_Dat
         #endif
 
         /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
+        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
         {
 //            data->DeviceCounter  = read_data[2] << 24;
 //            data->DeviceCounter |= read_data[3] << 16;
@@ -252,8 +252,8 @@ int32_t GENERIC_IMU_RequestYData(can_info_t *canDevice, GENERIC_IMU_Device_Y_Dat
             #ifdef GENERIC_IMU_CFG_DEBUG
                 OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
 //                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear Y  = 0x%04x, %d  \n", data->YLinearAcc, data->YLinearAcc);
-                OS_printf("  Angular Y = 0x%04x, %d  \n", data->YAngularAcc, data->YAngularAcc);
+                OS_printf("  Linear Y  = 0x%04x, %f  \n", data->YLinearAcc, data->YLinearAcc);
+                OS_printf("  Angular Y = 0x%04x, %f  \n", data->YAngularAcc, data->YAngularAcc);
                 OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
             #endif
         }
@@ -289,7 +289,7 @@ int32_t GENERIC_IMU_RequestZData(can_info_t *canDevice, GENERIC_IMU_Device_Z_Dat
         #endif
 
         /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
+        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
         {
 //            data->DeviceCounter  = read_data[2] << 24;
 //            data->DeviceCounter |= read_data[3] << 16;
@@ -311,8 +311,8 @@ int32_t GENERIC_IMU_RequestZData(can_info_t *canDevice, GENERIC_IMU_Device_Z_Dat
             #ifdef GENERIC_IMU_CFG_DEBUG
                 OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
 //                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear Z  = 0x%04x, %d  \n", data->ZLinearAcc, data->ZLinearAcc);
-                OS_printf("  Angular Z = 0x%04x, %d  \n", data->ZAngularAcc, data->ZAngularAcc);
+                OS_printf("  Linear Z  = 0x%04x, %f  \n", data->ZLinearAcc, data->ZLinearAcc);
+                OS_printf("  Angular Z = 0x%04x, %f  \n", data->ZAngularAcc, data->ZAngularAcc);
                 OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
             #endif
         }
@@ -362,7 +362,7 @@ int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_t
 
         /* Verify data header and trailer */
 /*
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR))
+        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
         {
             data->DeviceCounter  = read_data[2] << 24;
             data->DeviceCounter |= read_data[3] << 16;

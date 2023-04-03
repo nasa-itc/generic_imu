@@ -21,6 +21,7 @@
 ** TODO: Make specific to your application
 */
 #define GENERIC_IMU_DEVICE_HDR              0x80
+#define GENERIC_IMU_DEVICE_RCV_HDR          0x00
 
 #define GENERIC_IMU_DEVICE_NOOP_CMD         0x00
 #define GENERIC_IMU_DEVICE_REQ_HK_CMD       0x01
