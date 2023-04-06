@@ -179,12 +179,12 @@ int32_t GENERIC_IMU_RequestXData(can_info_t *canDevice, GENERIC_IMU_Device_X_Dat
 //            data->DeviceCounter |= read_data[5];
 
             uint32_t data_preadjustment[2];
+            int adjuster = 0; //This should be used to shift the zeroes so that they are in the right location when compared to the values of the messages coming in from the hardware library.
             for (int i = 1; i <= 2; i++) {
-                data_preadjustment[i-1]  = read_data[2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[5+4*i];
-
+                data_preadjustment[i-1]  = read_data[adjuster + 2+4*i] << 24;
+                data_preadjustment[i-1] |= read_data[adjuster + 3+4*i] << 16;
+                data_preadjustment[i-1] |= read_data[adjuster + 4+4*i] << 8;
+                data_preadjustment[i-1] |= read_data[adjuster + 5+4*i];
             }
 
             data->XLinearAcc  = (float) (data_preadjustment[0] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
@@ -238,12 +238,12 @@ int32_t GENERIC_IMU_RequestYData(can_info_t *canDevice, GENERIC_IMU_Device_Y_Dat
 //            data->DeviceCounter |= read_data[5];
 
             uint32_t data_preadjustment[2];
+            int adjuster = 0; //This should be used to shift the zeroes so that they are in the right location when compared to the values of the messages coming in from the hardware library.
             for (int i = 1; i <= 2; i++) {
-                data_preadjustment[i-1]  = read_data[2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[5+4*i];
-
+                data_preadjustment[i-1]  = read_data[adjuster + 2+4*i] << 24;
+                data_preadjustment[i-1] |= read_data[adjuster + 3+4*i] << 16;
+                data_preadjustment[i-1] |= read_data[adjuster + 4+4*i] << 8;
+                data_preadjustment[i-1] |= read_data[adjuster + 5+4*i];
             }
 
             data->YLinearAcc  = (float) (data_preadjustment[0] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
@@ -297,11 +297,12 @@ int32_t GENERIC_IMU_RequestZData(can_info_t *canDevice, GENERIC_IMU_Device_Z_Dat
 //            data->DeviceCounter |= read_data[5];
 
             uint32_t data_preadjustment[2];
+            int adjuster = 0; //This should be used to shift the zeroes so that they are in the right location when compared to the values of the messages coming in from the hardware library.
             for (int i = 1; i <= 2; i++) {
-                data_preadjustment[i-1]  = read_data[2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[5+4*i];
+                data_preadjustment[i-1]  = read_data[adjuster + 2+4*i] << 24;
+                data_preadjustment[i-1] |= read_data[adjuster + 3+4*i] << 16;
+                data_preadjustment[i-1] |= read_data[adjuster + 4+4*i] << 8;
+                data_preadjustment[i-1] |= read_data[adjuster + 5+4*i];
 
             }
 

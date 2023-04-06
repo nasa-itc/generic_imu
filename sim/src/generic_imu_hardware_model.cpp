@@ -200,15 +200,15 @@ namespace Nos3
                     printf("X linear acceleration: %f\n", data_point->get_generic_imu_acc_x());
                     printf("X rotational rate: %f\n", data_point->get_generic_imu_gyro_x());
                     uint32_t x_linear = (uint32_t)((data_point->get_generic_imu_acc_x())*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
-                    out_data[ 4] = (x_linear >> 24) & 0x00FF;
-                    out_data[ 5] = (x_linear >> 16) & 0x00FF;
-                    out_data[ 6] = (x_linear >> 8 ) & 0x00FF;
-                    out_data[ 7] =  x_linear        & 0x00FF;
+                    out_data[ 6] = (x_linear >> 24) & 0x00FF;
+                    out_data[ 7] = (x_linear >> 16) & 0x00FF;
+                    out_data[ 8] = (x_linear >> 8 ) & 0x00FF;
+                    out_data[ 9] =  x_linear        & 0x00FF;
                     uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    out_data[ 8] = (x_angular >> 24) & 0x00FF;
-                    out_data[ 9] = (x_angular >> 16) & 0x00FF;
-                    out_data[10] = (x_angular >> 8 ) & 0x00FF;
-                    out_data[11] =  x_angular        & 0x00FF;
+                    out_data[10] = (x_angular >> 24) & 0x00FF;
+                    out_data[11] = (x_angular >> 16) & 0x00FF;
+                    out_data[12] = (x_angular >> 8 ) & 0x00FF;
+                    out_data[13] =  x_angular        & 0x00FF;
                     break;
                 }
 
@@ -217,15 +217,21 @@ namespace Nos3
                     printf("Y linear acceleration: %f\n", data_point->get_generic_imu_acc_y());
                     printf("Y rotational rate: %f\n", data_point->get_generic_imu_gyro_y());
                     uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
-                    out_data[ 4] = (y_linear >> 24) & 0x00FF;
-                    out_data[ 5] = (y_linear >> 16) & 0x00FF;
-                    out_data[ 6] = (y_linear >> 8 ) & 0x00FF;
-                    out_data[ 7] =  y_linear        & 0x00FF;
+                    out_data[ 6] = (y_linear >> 24) & 0x00FF;
+                    out_data[ 7] = (y_linear >> 16) & 0x00FF;
+                    out_data[ 8] = (y_linear >> 8 ) & 0x00FF;
+                    out_data[ 9] =  y_linear        & 0x00FF;
                     uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    out_data[ 8] = (y_angular >> 24) & 0x00FF;
-                    out_data[ 9] = (y_angular >> 16) & 0x00FF;
-                    out_data[10] = (y_angular >> 8 ) & 0x00FF;
-                    out_data[11] =  y_angular        & 0x00FF;
+                    out_data[10] = (y_angular >> 24) & 0x00FF;
+                    out_data[11] = (y_angular >> 16) & 0x00FF;
+                    out_data[12] = (y_angular >> 8 ) & 0x00FF;
+                    out_data[13] =  y_angular        & 0x00FF;
+                    printf("Message being sent:");
+                    for (uint32_t i = 0; i < out_data.size(); i++) 
+                    {
+                        printf("%02x", out_data[i]);
+                    }
+                    printf("\n");
                     break;
                 }
        
@@ -234,15 +240,15 @@ namespace Nos3
                     printf("Z linear acceleration: %f\n", data_point->get_generic_imu_acc_z());
                     printf("Z rotational rate: %f\n", data_point->get_generic_imu_gyro_z());
                     uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
-                    out_data[ 4] = (z_linear >> 24) & 0x00FF;
-                    out_data[ 5] = (z_linear >> 16) & 0x00FF;
-                    out_data[ 6] = (z_linear >> 8 ) & 0x00FF;
-                    out_data[ 7] =  z_linear        & 0x00FF;
+                    out_data[ 6] = (z_linear >> 24) & 0x00FF;
+                    out_data[ 7] = (z_linear >> 16) & 0x00FF;
+                    out_data[ 8] = (z_linear >> 8 ) & 0x00FF;
+                    out_data[ 9] =  z_linear        & 0x00FF;
                     uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*_ANG_CONV_CONST + _ANG_CONV_CONST*400); 
-                    out_data[ 8] = (z_angular >> 24) & 0x00FF;
-                    out_data[ 9] = (z_angular >> 16) & 0x00FF;
-                    out_data[10] = (z_angular >> 8 ) & 0x00FF;
-                    out_data[11] =  z_angular        & 0x00FF;
+                    out_data[10] = (z_angular >> 24) & 0x00FF;
+                    out_data[11] = (z_angular >> 16) & 0x00FF;
+                    out_data[12] = (z_angular >> 8 ) & 0x00FF;
+                    out_data[13] =  z_angular        & 0x00FF;
                     break;
                 }
 
@@ -297,7 +303,7 @@ namespace Nos3
             if (valid == GENERIC_IMU_SIM_SUCCESS)
             {   
                 /* Process command */
-                switch (in_data[9])
+                switch (in_data[9]) //might need to be 4; I should check the proper value for this.
                 {
                     case 0:
                         /* NOOP */
@@ -368,7 +374,6 @@ namespace Nos3
                         out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
                         break;
 
-
 //                    case 3:
 //                        /* Configuration */
 //                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Configuration command received!");
@@ -392,14 +397,12 @@ namespace Nos3
         if (valid == GENERIC_IMU_SIM_SUCCESS)
         {
             _count++;
-//            _can_connection->can_write(&in_data[0], in_data.size()); //THIS IS A PROBLEM
 
             /* Send response if existing */
             if (out_data.size() > 0)
             {
                 sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  REPLY %s",
                     SimIHardwareModel::uint8_vector_to_hex_string(out_data).c_str());
-//                _can_connection->can_write(&out_data[0], out_data.size()); //SO IS THIS
             }
         }
     return out_data;
