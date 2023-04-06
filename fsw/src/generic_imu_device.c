@@ -14,8 +14,8 @@
 // Both of the below constants are defined to allow the greatest possible precision
 // without overflow on a range of -10<x<10 for x=linear acceleration (in g) and
 // -400<x<400 for x=angular rotation rate (in deg/s).
-#define LIN_CONV_CONST 214748364 //multiply by 10 to get the added constant
-#define ANG_CONV_CONST 5368709 //multiply by 400 to get the added constant
+#define LIN_CONV_CONST 214748364.0 //multiply by 10 to get the added constant
+#define ANG_CONV_CONST 5368709.0 //multiply by 400 to get the added constant
 
 /*
 ** Helper Function
@@ -166,8 +166,8 @@ int32_t GENERIC_IMU_RequestAxis(can_info_t *canDevice, GENERIC_IMU_Device_Axis_D
         aa_tmp |= canDevice->rx_frame.data[7];
 
         /* Float conversion */
-        data->LinearAcc  = (float) ((la_tmp - (LIN_CONV_CONST*10)) / LIN_CONV_CONST);
-        data->AngularAcc  = (float) ((aa_tmp - (ANG_CONV_CONST*400)) / ANG_CONV_CONST);
+        data->LinearAcc  = (float) ((la_tmp - (LIN_CONV_CONST*10.0)) / LIN_CONV_CONST);
+        data->AngularAcc  = (float) ((aa_tmp - (ANG_CONV_CONST*400.0)) / ANG_CONV_CONST);
     } 
     else
     {
