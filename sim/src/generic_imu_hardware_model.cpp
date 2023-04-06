@@ -6,7 +6,7 @@ namespace Nos3
 
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_imuHardwareModel::Generic_imuHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), _enabled(0), _count(0), _config(0), _status(0)
+    Generic_imuHardwareModel::Generic_imuHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), _enabled(0), _count(0), _status(0)
     {
         /* Get the NOS engine connection string */
         std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001");
@@ -109,7 +109,6 @@ namespace Nos3
         {
             _enabled = GENERIC_IMU_SIM_ERROR;
             _count = 0;
-            _config = 0;
             _status = 0;
             response = "Generic_imuHardwareModel::command_callback:  Disabled";
         }
@@ -142,7 +141,7 @@ namespace Nos3
     void Generic_imuHardwareModel::create_generic_imu_hk(std::vector<uint8_t>& out_data)
     {
         /* Prepare data size */
-        out_data.resize(12, 0x00);
+        out_data.resize(8, 0x00);
 
         // I removed both header and trailer from this, since CAN does not use the same kind
         // as other protocols do.
@@ -153,18 +152,11 @@ namespace Nos3
         out_data[2] = (_count >>  8) & 0x000000FF; 
         out_data[3] =  _count & 0x000000FF;
         
-        /* Configuration */
-        out_data[4] = (_config >> 24) & 0x000000FF; 
-        out_data[5] = (_config >> 16) & 0x000000FF; 
-        out_data[6] = (_config >>  8) & 0x000000FF; 
-        out_data[7] =  _config & 0x000000FF;
-
         /* Device Status */
-        out_data[8] = (_status >> 24) & 0x000000FF; 
-        out_data[9] = (_status >> 16) & 0x000000FF; 
-        out_data[10] = (_status >>  8) & 0x000000FF; 
-        out_data[11] =  _status & 0x000000FF;
-
+        out_data[4] = (_status >> 24) & 0x000000FF; 
+        out_data[5] = (_status >> 16) & 0x000000FF; 
+        out_data[6] = (_status >>  8) & 0x000000FF; 
+        out_data[7] =  _status & 0x000000FF;
     }
 
 
@@ -175,14 +167,7 @@ namespace Nos3
         std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
 
         /* Prepare data size */
-        out_data.resize(14, 0x00); 
-
-       
-        /* Sequence count */
-        out_data[0] = (_count >> 24) & 0x000000FF; 
-        out_data[1] = (_count >> 16) & 0x000000FF; 
-        out_data[2] = (_count >>  8) & 0x000000FF; 
-        out_data[3] =  _count & 0x000000FF;
+        out_data.resize(8, 0x00); 
         
         /* 
         ** Payload 
@@ -197,58 +182,52 @@ namespace Nos3
         {
             case 2:
                 {
-                    printf("X linear acceleration: %f\n", data_point->get_generic_imu_acc_x());
-                    printf("X rotational rate: %f\n", data_point->get_generic_imu_gyro_x());
                     uint32_t x_linear = (uint32_t)((data_point->get_generic_imu_acc_x())*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
-                    out_data[ 6] = (x_linear >> 24) & 0x00FF;
-                    out_data[ 7] = (x_linear >> 16) & 0x00FF;
-                    out_data[ 8] = (x_linear >> 8 ) & 0x00FF;
-                    out_data[ 9] =  x_linear        & 0x00FF;
                     uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    out_data[10] = (x_angular >> 24) & 0x00FF;
-                    out_data[11] = (x_angular >> 16) & 0x00FF;
-                    out_data[12] = (x_angular >> 8 ) & 0x00FF;
-                    out_data[13] =  x_angular        & 0x00FF;
+                    printf("X linear acceleration: %f, converted to %lu \n", data_point->get_generic_imu_acc_x(), x_linear);
+                    printf("X rotational rate: %f, converted to %lu \n", data_point->get_generic_imu_gyro_x(), x_angular);
+                    out_data[0] = (x_linear >> 24);
+                    out_data[1] = (x_linear >> 16);
+                    out_data[2] = (x_linear >> 8 );
+                    out_data[3] =  x_linear;
+                    out_data[4] = (x_angular >> 24);
+                    out_data[5] = (x_angular >> 16);
+                    out_data[6] = (x_angular >> 8 );
+                    out_data[7] =  x_angular;
                     break;
                 }
 
             case 3:
                 {
-                    printf("Y linear acceleration: %f\n", data_point->get_generic_imu_acc_y());
-                    printf("Y rotational rate: %f\n", data_point->get_generic_imu_gyro_y());
                     uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
-                    out_data[ 6] = (y_linear >> 24) & 0x00FF;
-                    out_data[ 7] = (y_linear >> 16) & 0x00FF;
-                    out_data[ 8] = (y_linear >> 8 ) & 0x00FF;
-                    out_data[ 9] =  y_linear        & 0x00FF;
                     uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    out_data[10] = (y_angular >> 24) & 0x00FF;
-                    out_data[11] = (y_angular >> 16) & 0x00FF;
-                    out_data[12] = (y_angular >> 8 ) & 0x00FF;
-                    out_data[13] =  y_angular        & 0x00FF;
-                    printf("Message being sent:");
-                    for (uint32_t i = 0; i < out_data.size(); i++) 
-                    {
-                        printf("%02x", out_data[i]);
-                    }
-                    printf("\n");
+                    printf("Y linear acceleration: %f, converted to %lu \n", data_point->get_generic_imu_acc_y(), y_linear);
+                    printf("Y rotational rate: %f, converted to %lu \n", data_point->get_generic_imu_gyro_y(), y_angular);
+                    out_data[0] = (y_linear >> 24);
+                    out_data[1] = (y_linear >> 16);
+                    out_data[2] = (y_linear >> 8 );
+                    out_data[3] =  y_linear;
+                    out_data[4] = (y_angular >> 24);
+                    out_data[5] = (y_angular >> 16);
+                    out_data[6] = (y_angular >> 8 );
+                    out_data[7] =  y_angular;
                     break;
                 }
        
             case 4:
                 {
-                    printf("Z linear acceleration: %f\n", data_point->get_generic_imu_acc_z());
-                    printf("Z rotational rate: %f\n", data_point->get_generic_imu_gyro_z());
                     uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
-                    out_data[ 6] = (z_linear >> 24) & 0x00FF;
-                    out_data[ 7] = (z_linear >> 16) & 0x00FF;
-                    out_data[ 8] = (z_linear >> 8 ) & 0x00FF;
-                    out_data[ 9] =  z_linear        & 0x00FF;
                     uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*_ANG_CONV_CONST + _ANG_CONV_CONST*400); 
-                    out_data[10] = (z_angular >> 24) & 0x00FF;
-                    out_data[11] = (z_angular >> 16) & 0x00FF;
-                    out_data[12] = (z_angular >> 8 ) & 0x00FF;
-                    out_data[13] =  z_angular        & 0x00FF;
+                    printf("Z linear acceleration: %f, converted to %lu \n", data_point->get_generic_imu_acc_z(), z_linear);
+                    printf("Z rotational rate: %f, converted to %lu \n", data_point->get_generic_imu_gyro_z(), z_angular);
+                    out_data[0] = (z_linear >> 24);
+                    out_data[1] = (z_linear >> 16);
+                    out_data[2] = (z_linear >> 8 );
+                    out_data[3] =  z_linear;
+                    out_data[4] = (z_angular >> 24);
+                    out_data[5] = (z_angular >> 16);
+                    out_data[6] = (z_angular >> 8 );
+                    out_data[7] =  z_angular;
                     break;
                 }
 
@@ -268,7 +247,6 @@ namespace Nos3
         std::vector<uint8_t> out_data;
         std::vector<uint8_t> imu_data; 
         std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
-        std::uint32_t rcv_config;
 
         /* Retrieve data and log in man readable format */
         sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  REQUEST %s",
@@ -373,16 +351,6 @@ namespace Nos3
                         out_data.push_back(0x00); // Pad
                         out_data.insert(out_data.end(), imu_data.begin(), imu_data.end());
                         break;
-
-//                    case 3:
-//                        /* Configuration */
-//                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Configuration command received!");
-//                        _config  = in_data[5] << 24;
-//                        _config |= in_data[6] << 16;
-//                        _config |= in_data[7] << 8;
-//                        _config |= in_data[8];
-//                        break;
-// I AM NOT SURE I SHOULD JUST ELIMINATE THIS, BUT I WILL FOR NOW
                     
                     default:
                         /* Unused command code */

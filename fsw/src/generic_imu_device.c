@@ -65,7 +65,6 @@ int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code)
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
     uint8_t write_data[GENERIC_IMU_DEVICE_CMD_SIZE] = {0};
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
 
     /* Prepare command */
     write_data[0] = GENERIC_IMU_DEVICE_HDR;
@@ -89,9 +88,8 @@ int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code)
 int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_HK_SIZE] = {0};
 
-    status = GENERIC_IMU_CommandDevice(canDevice, 1);
+    status = GENERIC_IMU_CommandDevice(canDevice, GENERIC_IMU_DEVICE_REQ_HK_CMD);
     if (status == OS_SUCCESS)
     {
         #ifdef GENERIC_IMU_CFG_DEBUG
@@ -103,66 +101,50 @@ int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t
             OS_printf("\n");
         #endif
 
-        /* Verify return frame length
+        /* Verify return frame length */
+        /*
         if (canDevice->rx_frame.can_dlc != GENERIC_IMU_DEVICE_HK_SIZE)
         {
             #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestHK: Bytes read != to requested! \n");
+                OS_printf("  GENERIC_IMU_RequestHK: Bytes read %d != to requested %d! \n", canDevice->rx_frame.can_dlc, GENERIC_IMU_DEVICE_HK_SIZE);
             #endif
             status = OS_ERROR;
         }
         */
 
-        /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
-        {
-            data->DeviceCounter  = read_data[2] << 24;
-            data->DeviceCounter |= read_data[3] << 16;
-            data->DeviceCounter |= read_data[4] << 8;
-            data->DeviceCounter |= read_data[5];
+        data->DeviceCounter  = canDevice->rx_frame.data[0] << 24;
+        data->DeviceCounter |= canDevice->rx_frame.data[1] << 16;
+        data->DeviceCounter |= canDevice->rx_frame.data[2] << 8;
+        data->DeviceCounter |= canDevice->rx_frame.data[3];
 
-            data->DeviceConfig  = read_data[6] << 24;
-            data->DeviceConfig |= read_data[7] << 16;
-            data->DeviceConfig |= read_data[8] << 8;
-            data->DeviceConfig |= read_data[9];
+        data->DeviceStatus  = canDevice->rx_frame.data[4] << 24;
+        data->DeviceStatus |= canDevice->rx_frame.data[5] << 16;
+        data->DeviceStatus |= canDevice->rx_frame.data[6] << 8;
+        data->DeviceStatus |= canDevice->rx_frame.data[7];
 
-            data->DeviceStatus  = read_data[10] << 24;
-            data->DeviceStatus |= read_data[11] << 16;
-            data->DeviceStatus |= read_data[12] << 8;
-            data->DeviceStatus |= read_data[13];
-
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  Header  = 0x%02x      \n", read_data[0]);
-                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Config  = 0x%08x      \n", data->DeviceConfig);
-                OS_printf("  Status  = 0x%08x      \n", data->DeviceStatus);
-                OS_printf("  Trailer = 0x%02x%02x  \n", read_data[14], read_data[15]);
-            #endif
-        }
-        else
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestHK: GENERIC_IMU_CommandDevice reported error %d \n", status);
-            #endif 
-            status = OS_ERROR;
-        }
+        #ifdef GENERIC_IMU_CFG_DEBUG
+            OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
+            OS_printf("  Status  = 0x%08x      \n", data->DeviceStatus);
+        #endif
     }
     return status;
 }
 
+
 /*
-** Command to request X data
+** Request Axis
 */
-int32_t GENERIC_IMU_RequestXData(can_info_t *canDevice, GENERIC_IMU_Device_X_Data_t* data)
+int32_t GENERIC_IMU_RequestAxis(can_info_t *canDevice, GENERIC_IMU_Device_Axis_Data_t* data, uint8_t cmd_code)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
+    uint32_t la_tmp;
+    uint32_t aa_tmp;
 
-    status = GENERIC_IMU_CommandDevice(canDevice, 2);
+    status = GENERIC_IMU_CommandDevice(canDevice, cmd_code);
     if (status == OS_SUCCESS)
     {
         #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestXData[%d] = ", canDevice->rx_frame.can_dlc);
+            OS_printf("  GENERIC_IMU_RequestAxis %d, [%d] = ", cmd_code, canDevice->rx_frame.can_dlc);
             for (uint32_t i = 0; i < canDevice->rx_frame.can_dlc; i++)
             {
                 OS_printf("%02x", canDevice->rx_frame.data[i]);
@@ -170,258 +152,66 @@ int32_t GENERIC_IMU_RequestXData(can_info_t *canDevice, GENERIC_IMU_Device_X_Dat
             OS_printf("\n");
         #endif
 
-        /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
-        {
-//            data->DeviceCounter  = read_data[2] << 24;
-//            data->DeviceCounter |= read_data[3] << 16;
-//            data->DeviceCounter |= read_data[4] << 8;
-//            data->DeviceCounter |= read_data[5];
+        /* Verify return frame length */
 
-            uint32_t data_preadjustment[2];
-            int adjuster = 0; //This should be used to shift the zeroes so that they are in the right location when compared to the values of the messages coming in from the hardware library.
-            for (int i = 1; i <= 2; i++) {
-                data_preadjustment[i-1]  = read_data[adjuster + 2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[adjuster + 3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[adjuster + 4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[adjuster + 5+4*i];
-            }
+        /* Proces data */
+        la_tmp  = canDevice->rx_frame.data[0] << 24;
+        la_tmp |= canDevice->rx_frame.data[1] << 16;
+        la_tmp |= canDevice->rx_frame.data[2] << 8;
+        la_tmp |= canDevice->rx_frame.data[3];
 
-            data->XLinearAcc  = (float) (data_preadjustment[0] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
-            data->XAngularAcc  = (float) (data_preadjustment[1] - ANG_CONV_CONST*400)/ANG_CONV_CONST;
+        aa_tmp  = canDevice->rx_frame.data[4] << 24;
+        aa_tmp |= canDevice->rx_frame.data[5] << 16;
+        aa_tmp |= canDevice->rx_frame.data[6] << 8;
+        aa_tmp |= canDevice->rx_frame.data[7];
 
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-//                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear X  = 0x%04x, %f  \n", data->XLinearAcc, data->XLinearAcc);
-                OS_printf("  Angular X = 0x%04x, %f  \n", data->XAngularAcc, data->XAngularAcc);
-                OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
-            #endif
-        }
+        /* Float conversion */
+        data->LinearAcc  = (float) ((la_tmp - (LIN_CONV_CONST*10)) / LIN_CONV_CONST);
+        data->AngularAcc  = (float) ((aa_tmp - (ANG_CONV_CONST*400)) / ANG_CONV_CONST);
     } 
     else
     {
         #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestXData: Invalid data read! \n");
+            OS_printf("  GENERIC_IMU_RequestAxis: Invalid data read! \n");
         #endif 
         status = OS_ERROR;
-    } /* GENERIC_IMU_ReadXData */
-    return status;
-}
-
-/*
-** Command to request Y data
-*/
-int32_t GENERIC_IMU_RequestYData(can_info_t *canDevice, GENERIC_IMU_Device_Y_Data_t* data)
-{
-    int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
-
-    status = GENERIC_IMU_CommandDevice(canDevice, 3);
-    if (status == OS_SUCCESS)
-    {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestYData[%d] = ", canDevice->rx_frame.can_dlc);
-            for (uint32_t i = 0; i < canDevice->rx_frame.can_dlc; i++)
-            {
-                OS_printf("%02x", canDevice->rx_frame.data[i]);
-            }
-            OS_printf("\n");
-        #endif
-
-        /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
-        {
-//            data->DeviceCounter  = read_data[2] << 24;
-//            data->DeviceCounter |= read_data[3] << 16;
-//            data->DeviceCounter |= read_data[4] << 8;
-//            data->DeviceCounter |= read_data[5];
-
-            uint32_t data_preadjustment[2];
-            int adjuster = 0; //This should be used to shift the zeroes so that they are in the right location when compared to the values of the messages coming in from the hardware library.
-            for (int i = 1; i <= 2; i++) {
-                data_preadjustment[i-1]  = read_data[adjuster + 2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[adjuster + 3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[adjuster + 4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[adjuster + 5+4*i];
-            }
-
-            data->YLinearAcc  = (float) (data_preadjustment[0] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
-            data->YAngularAcc  = (float) (data_preadjustment[1] - ANG_CONV_CONST*400)/ANG_CONV_CONST;
-
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-//                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear Y  = 0x%04x, %f  \n", data->YLinearAcc, data->YLinearAcc);
-                OS_printf("  Angular Y = 0x%04x, %f  \n", data->YAngularAcc, data->YAngularAcc);
-                OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
-            #endif
-        }
     } 
-    else
-    {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestYData: Invalid data read! \n");
-        #endif 
-        status = OS_ERROR;
-    } /* GENERIC_IMU_ReadYData */
     return status;
 }
-
-/*
-** Command to request Z data
-*/
-int32_t GENERIC_IMU_RequestZData(can_info_t *canDevice, GENERIC_IMU_Device_Z_Data_t* data)
-{
-    int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
-
-    status = GENERIC_IMU_CommandDevice(canDevice, 4);
-    if (status == OS_SUCCESS)
-    {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestZData[%d] = ", canDevice->rx_frame.can_dlc);
-            for (uint32_t i = 0; i < canDevice->rx_frame.can_dlc; i++)
-            {
-                OS_printf("%02x", canDevice->rx_frame.data[i]);
-            }
-            OS_printf("\n");
-        #endif
-
-        /* Verify data header and trailer */
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
-        {
-//            data->DeviceCounter  = read_data[2] << 24;
-//            data->DeviceCounter |= read_data[3] << 16;
-//            data->DeviceCounter |= read_data[4] << 8;
-//            data->DeviceCounter |= read_data[5];
-
-            uint32_t data_preadjustment[2];
-            int adjuster = 0; //This should be used to shift the zeroes so that they are in the right location when compared to the values of the messages coming in from the hardware library.
-            for (int i = 1; i <= 2; i++) {
-                data_preadjustment[i-1]  = read_data[adjuster + 2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[adjuster + 3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[adjuster + 4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[adjuster + 5+4*i];
-
-            }
-
-            data->ZLinearAcc  = (float) (data_preadjustment[0] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
-            data->ZAngularAcc  = (float) (data_preadjustment[1] - ANG_CONV_CONST*400)/ANG_CONV_CONST;
-
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-//                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear Z  = 0x%04x, %f  \n", data->ZLinearAcc, data->ZLinearAcc);
-                OS_printf("  Angular Z = 0x%04x, %f  \n", data->ZAngularAcc, data->ZAngularAcc);
-                OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
-            #endif
-        }
-    } 
-    else
-    {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestZData: Invalid data read! \n");
-        #endif 
-        status = OS_ERROR;
-    } /* GENERIC_IMU_ReadZData */
-    return status;
-}
-
 
 
 /*
 ** Request data command
 */
-/*
 int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
 
-    status = GENERIC_IMU_CommandDevice(canDevice, 2);
+    status = GENERIC_IMU_RequestAxis(canDevice, &data->X_Data, GENERIC_IMU_DEVICE_REQ_X_DATA_CMD);
     if (status == OS_SUCCESS)
     {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestData[%d] = ", canDevice->rx_frame.can_dlc);
-            for (uint32_t i = 0; i < canDevice->rx_frame.can_dlc; i++)
-            {
-                OS_printf("%02x", canDevice->rx_frame.data[i]);
-            }
-            OS_printf("\n");
-        #endif
-*/
-        /* Verify return frame length
-        if (canDevice->rx_frame.can_dlc != GENERIC_IMU_DEVICE_DATA_SIZE)
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestData: Bytes read != to requested! \n");
-            #endif
-            status = OS_ERROR;
+        status = GENERIC_IMU_RequestAxis(canDevice, &data->Y_Data, GENERIC_IMU_DEVICE_REQ_Y_DATA_CMD);
+        if (status == OS_SUCCESS)
+        {   
+            status = GENERIC_IMU_RequestAxis(canDevice, &data->Z_Data, GENERIC_IMU_DEVICE_REQ_Z_DATA_CMD);
         }
-        */
+    }
 
-        /* Verify data header and trailer */
-/*
-        if ((read_data[0]  == GENERIC_IMU_DEVICE_RCV_HDR))
+    #ifdef GENERIC_IMU_CFG_DEBUG
+        if (status != OS_SUCCESS)
         {
-            data->DeviceCounter  = read_data[2] << 24;
-            data->DeviceCounter |= read_data[3] << 16;
-            data->DeviceCounter |= read_data[4] << 8;
-            data->DeviceCounter |= read_data[5];
-
-            uint32_t data_preadjustment[6];
-            for (int i = 1; i <= 6; i++) {
-                data_preadjustment[i-1]  = read_data[2+4*i] << 24;
-                data_preadjustment[i-1] |= read_data[3+4*i] << 16;
-                data_preadjustment[i-1] |= read_data[4+4*i] << 8;
-                data_preadjustment[i-1] |= read_data[5+4*i];
-
-            }
-
-            data->XLinearAcc  = (float) (data_preadjustment[0] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
-            data->XAngularAcc  = (float) (data_preadjustment[1] - ANG_CONV_CONST*400)/ANG_CONV_CONST;
-            data->YLinearAcc  = (float) (data_preadjustment[2] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
-            data->YAngularAcc  = (float) (data_preadjustment[3] - ANG_CONV_CONST*400)/ANG_CONV_CONST;
-            data->ZLinearAcc  = (float) (data_preadjustment[4] - LIN_CONV_CONST*10)/LIN_CONV_CONST;
-            data->ZAngularAcc  = (float) (data_preadjustment[5] - ANG_CONV_CONST*400)/ANG_CONV_CONST;
-
-//                data->XLinearAcc  = read_data[6] << 24;
-//                data->XLinearAcc |= read_data[7] << 16;
-//                data->XLinearAcc |= read_data[8] << 8;
-//                data->XLinearAcc |= read_data[9];
-//
-//                data->XAngularAcc  = read_data[10] << 24;
-//
-//                data->YLinearAcc   = read_data[14] << 24;
-//                data->YAngularAcc  = read_data[18] << 24;
-//               
-//                data->ZLinearAcc   = read_data[22] << 24;
-//                data->ZAngularAcc  = read_data[26] << 24;
-
-//                data->DeviceDataZ  = read_data[10] << 8;
-//                data->DeviceDataZ |= read_data[11];
-
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-                OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                OS_printf("  Linear X  = 0x%04x, %d  \n", data->XLinearAcc, data->XLinearAcc);
-                OS_printf("  Angular X = 0x%04x, %d  \n", data->XAngularAcc, data->XAngularAcc);
-                OS_printf("  Linear Y  = 0x%04x, %d  \n", data->YLinearAcc, data->YLinearAcc);
-                OS_printf("  Angular Y = 0x%04x, %d  \n", data->YAngularAcc, data->YAngularAcc);
-                OS_printf("  Linear Z  = 0x%04x, %d  \n", data->ZLinearAcc, data->ZLinearAcc);
-                OS_printf("  Angular Z = 0x%04x, %d  \n", data->ZAngularAcc, data->ZAngularAcc);
-                OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
-            #endif
+            OS_printf("  GENERIC_IMU_RequestData: Error %d reported in GENERIC_IMU_RequestAxis \n", status);
         }
-    } 
-    else
-    {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestData: Invalid data read! \n");
-        #endif 
-        status = OS_ERROR;
-    }*/ /* GENERIC_IMU_ReadData */
-/*    return status;
+        OS_printf("GENERIC_IMU_RequestData\n");
+        OS_printf("  Linear X  = 0x%08x, %f  \n", data->X_Data.LinearAcc, data->X_Data.LinearAcc);
+        OS_printf("  Angular X = 0x%08x, %f  \n", data->X_Data.AngularAcc, data->X_Data.AngularAcc);
+        OS_printf("  Linear Y  = 0x%08x, %f  \n", data->Y_Data.LinearAcc, data->Y_Data.LinearAcc);
+        OS_printf("  Angular Y = 0x%08x, %f  \n", data->Y_Data.AngularAcc, data->Y_Data.AngularAcc);
+        OS_printf("  Linear Z  = 0x%08x, %f  \n", data->Z_Data.LinearAcc, data->Z_Data.LinearAcc);
+        OS_printf("  Angular Z = 0x%08x, %f  \n", data->Z_Data.AngularAcc, data->Z_Data.AngularAcc);
+        OS_printf("\n");
+    #endif 
+
+    return status;
 }
-*/
+

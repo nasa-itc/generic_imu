@@ -224,7 +224,6 @@ int32 GENERIC_IMU_AppInit(void)
     */
     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK.DeviceCounter = 0;
-    GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK.DeviceConfig = 0;
     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 0;
 
     /* 
@@ -442,10 +441,7 @@ void GENERIC_IMU_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
-//        status = GENERIC_IMU_RequestData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Data_tlm_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu);
-        status = GENERIC_IMU_RequestXData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_X_Data_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu.X_Data);
-        status = GENERIC_IMU_RequestYData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Y_Data_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu.Y_Data);
-        status = GENERIC_IMU_RequestZData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Z_Data_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu.Z_Data);
+        status = GENERIC_IMU_RequestData(&GENERIC_IMU_AppData.Generic_imuCan, (GENERIC_IMU_Device_Data_tlm_t*) &GENERIC_IMU_AppData.DevicePkt.Generic_imu);
         if (status == OS_SUCCESS)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
@@ -505,8 +501,6 @@ void GENERIC_IMU_Enable(void)
         GENERIC_IMU_AppData.Generic_imuCan.second_timeout = GENERIC_IMU_CFG_CAN_TIMEOUT;
         GENERIC_IMU_AppData.Generic_imuCan.microsecond_timeout = GENERIC_IMU_CFG_CAN_MS_TIMEOUT;
         GENERIC_IMU_AppData.Generic_imuCan.xfer_us_delay = GENERIC_IMU_CFG_CAN_XFER_US;
-
-        printf("Inside of the app enable method\n");
 
         /* Open device specific protocols */
         status = can_init_dev(&GENERIC_IMU_AppData.Generic_imuCan);
