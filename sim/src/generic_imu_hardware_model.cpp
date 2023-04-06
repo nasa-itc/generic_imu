@@ -36,15 +36,10 @@ namespace Nos3
                 }
             }
         }
-//        _can_connection.reset(new NosEngine::Can::CanSlave(_hub, config.get("simulator.name", "generic_imu_sim"), connection_string, bus_name)); //This might not be how to do this; I just replaced NosEngine::Uart::Uart with NosEngine::Can::CanSlave.
-//        _can_connection->open(node_port);
         _can_connection = new IMUCanSlaveConnection(this, node_port, connection_string, bus_name);
         sim_logger->info("Generic_imuHardwareModel::Generic_imuHardwareModel:  Now on CAN bus name %s, port %d.", bus_name.c_str(), node_port);
     
         /* Configure protocol callback */
-//        _can_connection->set_read_callback(std::bind(&Generic_imuHardwareModel::determine_can_response, this, std::placeholders::_1, std::placeholders::_2));
-//        _uart_connection->set_read_callback(std::bind(&Generic_imuHardwareModel::uart_read_callback, this, std::placeholders::_1, std::placeholders::_2)); //This will need to be replaced with the above.
-
         /* Get on the command bus*/
         std::string time_bus_name = "command";
         if (config.get_child_optional("hardware-model.connections")) 
@@ -73,7 +68,6 @@ namespace Nos3
     Generic_imuHardwareModel::~Generic_imuHardwareModel(void)
     {        
         /* Close the protocol bus */
-//        _can_connection->close();
         delete _can_connection;
         _can_connection = nullptr;
 
@@ -129,7 +123,6 @@ namespace Nos3
             _keep_running = false;
             response = "Generic_imuHardwareModel::command_callback:  Stopping";
         }
-        /* TODO: Add anything additional commands here */
 
         /* Send a reply */
         sim_logger->info("Generic_imuHardwareModel::command_callback:  Sending reply: %s.", response.c_str());
@@ -281,7 +274,7 @@ namespace Nos3
             if (valid == GENERIC_IMU_SIM_SUCCESS)
             {   
                 /* Process command */
-                switch (in_data[9]) //might need to be 4; I should check the proper value for this.
+                switch (in_data[9]) 
                 {
                     case 0:
                         /* NOOP */

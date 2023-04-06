@@ -101,17 +101,6 @@ int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t
             OS_printf("\n");
         #endif
 
-        /* Verify return frame length */
-        /*
-        if (canDevice->rx_frame.can_dlc != GENERIC_IMU_DEVICE_HK_SIZE)
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestHK: Bytes read %d != to requested %d! \n", canDevice->rx_frame.can_dlc, GENERIC_IMU_DEVICE_HK_SIZE);
-            #endif
-            status = OS_ERROR;
-        }
-        */
-
         data->DeviceCounter  = canDevice->rx_frame.data[0] << 24;
         data->DeviceCounter |= canDevice->rx_frame.data[1] << 16;
         data->DeviceCounter |= canDevice->rx_frame.data[2] << 8;

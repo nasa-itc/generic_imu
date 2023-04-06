@@ -46,7 +46,6 @@ static CFE_EVS_BinFilter_t  GENERIC_IMU_EventFilters[] =
     {GENERIC_IMU_CAN_READ_ERR_EID,       0x0000},
     {GENERIC_IMU_CAN_WRITE_ERR_EID,      0x0000},
     {GENERIC_IMU_CAN_TIMEOUT_ERR_EID,    0x0000},
-    /* TODO: Add additional event IDs (EID) to the table as created */
 };
 
 
