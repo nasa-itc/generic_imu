@@ -192,12 +192,18 @@ int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_t
             OS_printf("  GENERIC_IMU_RequestData: Error %d reported in GENERIC_IMU_RequestAxis \n", status);
         }
         OS_printf("GENERIC_IMU_RequestData\n");
-        OS_printf("  Linear X  = 0x%08x, %f  \n", data->X_Data.LinearAcc, data->X_Data.LinearAcc);
-        OS_printf("  Angular X = 0x%08x, %f  \n", data->X_Data.AngularAcc, data->X_Data.AngularAcc);
-        OS_printf("  Linear Y  = 0x%08x, %f  \n", data->Y_Data.LinearAcc, data->Y_Data.LinearAcc);
-        OS_printf("  Angular Y = 0x%08x, %f  \n", data->Y_Data.AngularAcc, data->Y_Data.AngularAcc);
-        OS_printf("  Linear Z  = 0x%08x, %f  \n", data->Z_Data.LinearAcc, data->Z_Data.LinearAcc);
-        OS_printf("  Angular Z = 0x%08x, %f  \n", data->Z_Data.AngularAcc, data->Z_Data.AngularAcc);
+        OS_printf("  Linear X  = 0x%08x, ", data->X_Data.LinearAcc);
+        OS_printf("%f  \n", data->X_Data.LinearAcc);
+        OS_printf("  Angular X = 0x%08x, ", data->X_Data.AngularAcc);
+        OS_printf("%f  \n",  data->X_Data.AngularAcc);
+        OS_printf("  Linear Y  = 0x%08x, ", data->Y_Data.LinearAcc);
+        OS_printf("%f  \n", data->Y_Data.LinearAcc);
+        OS_printf("  Angular Y = 0x%08x, ", data->Y_Data.AngularAcc);
+        OS_printf("%f  \n",  data->Y_Data.AngularAcc);
+        OS_printf("  Linear Z  = 0x%08x, ", data->Z_Data.LinearAcc);
+        OS_printf("%f  \n", data->Z_Data.LinearAcc);
+        OS_printf("  Angular Z = 0x%08x, ", data->Z_Data.AngularAcc);
+        OS_printf("%f  \n",  data->Z_Data.AngularAcc);
         OS_printf("\n");
     #endif 
 
