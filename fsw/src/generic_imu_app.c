@@ -17,37 +17,6 @@
 */
 GENERIC_IMU_AppData_t GENERIC_IMU_AppData;
 
-static CFE_EVS_BinFilter_t  GENERIC_IMU_EventFilters[] =
-{   /* Event ID    mask */
-    {GENERIC_IMU_RESERVED_EID,           0x0000},
-    {GENERIC_IMU_STARTUP_INF_EID,        0x0000},
-    {GENERIC_IMU_LEN_ERR_EID,            0x0000},
-    {GENERIC_IMU_PIPE_ERR_EID,           0x0000},
-    {GENERIC_IMU_SUB_CMD_ERR_EID,        0x0000},
-    {GENERIC_IMU_SUB_REQ_HK_ERR_EID,     0x0000},
-    {GENERIC_IMU_PROCESS_CMD_ERR_EID,    0x0000},
-    {GENERIC_IMU_CMD_ERR_EID,            0x0000},
-    {GENERIC_IMU_CMD_NOOP_INF_EID,       0x0000},
-    {GENERIC_IMU_CMD_RESET_INF_EID,      0x0000},
-    {GENERIC_IMU_CMD_ENABLE_INF_EID,     0x0000},
-    {GENERIC_IMU_ENABLE_INF_EID,         0x0000},
-    {GENERIC_IMU_ENABLE_ERR_EID,         0x0000},
-    {GENERIC_IMU_CMD_DISABLE_INF_EID,    0x0000},
-    {GENERIC_IMU_DISABLE_INF_EID,        0x0000},
-    {GENERIC_IMU_DISABLE_ERR_EID,        0x0000},
-    {GENERIC_IMU_CMD_CONFIG_INF_EID,     0x0000},
-    {GENERIC_IMU_CONFIG_INF_EID,         0x0000},
-    {GENERIC_IMU_CONFIG_ERR_EID,         0x0000},
-    {GENERIC_IMU_DEVICE_TLM_ERR_EID,     0x0000},
-    {GENERIC_IMU_REQ_HK_ERR_EID,         0x0000},
-    {GENERIC_IMU_REQ_DATA_ERR_EID,       0x0000},
-    {GENERIC_IMU_CAN_INIT_ERR_EID,       0x0000},
-    {GENERIC_IMU_CAN_CLOSE_ERR_EID,      0x0000},
-    {GENERIC_IMU_CAN_READ_ERR_EID,       0x0000},
-    {GENERIC_IMU_CAN_WRITE_ERR_EID,      0x0000},
-    {GENERIC_IMU_CAN_TIMEOUT_ERR_EID,    0x0000},
-};
-
 
 /*
 ** Application entry point and main process loop
@@ -114,9 +83,10 @@ void GENERIC_IMU_AppMain(void)
     }
 
     /*
-    ** Disable component, which cleans up the interface, upon exit
+    ** Disable component, and clean up the interface
     */
     GENERIC_IMU_Disable();
+    can_close_device(&GENERIC_IMU_AppData.Generic_imuCan);
 
     /*
     ** Performance log exit stamp
@@ -142,9 +112,7 @@ int32 GENERIC_IMU_AppInit(void)
     /*
     ** Register the events
     */ 
-    status = CFE_EVS_Register(GENERIC_IMU_EventFilters,
-                              sizeof(GENERIC_IMU_EventFilters)/sizeof(CFE_EVS_BinFilter_t),
-                              CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
+    status = CFE_EVS_Register(NULL, 0, CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
     if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("GENERIC_IMU: Error registering for event services: 0x%08X\n", (unsigned int) status);
@@ -186,11 +154,6 @@ int32 GENERIC_IMU_AppInit(void)
         return status;
     }
 
-    /*
-    ** TODO: Subscribe to any other messages here
-    */
-
-
     /* 
     ** Initialize the published HK message - this HK message will contain the 
     ** telemetry that has been defined in the GENERIC_IMU_HkTelemetryPkt for this app.
@@ -207,10 +170,6 @@ int32 GENERIC_IMU_AppInit(void)
                    GENERIC_IMU_DEVICE_TLM_MID,
                    GENERIC_IMU_DEVICE_TLM_LNGTH, TRUE);
 
-    /*
-    ** TODO: Initialize any other messages that this app will publish
-    */
-
 
     /* 
     ** Always reset all counters during application initialization 
@@ -224,6 +183,31 @@ int32 GENERIC_IMU_AppInit(void)
     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK.DeviceCounter = 0;
     GENERIC_IMU_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 0;
+
+    /*
+    ** Initialize hardware interface data
+    */ 
+    
+    GENERIC_IMU_AppData.Generic_imuCan.handle = GENERIC_IMU_CFG_STRING;
+    GENERIC_IMU_AppData.Generic_imuCan.isUp = CAN_INTERFACE_DOWN;
+    GENERIC_IMU_AppData.Generic_imuCan.loopback = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.listenOnly = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.tripleSampling = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.oneShot = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.berrReporting = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.fd = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.presumeAck = FALSE;
+    GENERIC_IMU_AppData.Generic_imuCan.bitrate = GENERIC_IMU_CFG_CAN_BITRATE;
+    GENERIC_IMU_AppData.Generic_imuCan.second_timeout = GENERIC_IMU_CFG_CAN_TIMEOUT;
+    GENERIC_IMU_AppData.Generic_imuCan.microsecond_timeout = GENERIC_IMU_CFG_CAN_MS_TIMEOUT;
+    GENERIC_IMU_AppData.Generic_imuCan.xfer_us_delay = GENERIC_IMU_CFG_CAN_XFER_US;
+
+    status = can_init_dev(&GENERIC_IMU_AppData.Generic_imuCan);
+    if (status != OS_SUCCESS)
+    {
+        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        CFE_EVS_SendEvent(GENERIC_IMU_CAN_INIT_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: CAN port initialization error %d", status);
+    }
 
     /* 
      ** Send an information event that the app has initialized. 
@@ -483,37 +467,9 @@ void GENERIC_IMU_Enable(void)
     /* Check that device is disabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_DISABLED)
     {
-        /*
-        ** Initialize hardware interface data
-        */ 
-        
-        GENERIC_IMU_AppData.Generic_imuCan.handle = GENERIC_IMU_CFG_STRING;
-        GENERIC_IMU_AppData.Generic_imuCan.isUp = CAN_INTERFACE_DOWN;
-        GENERIC_IMU_AppData.Generic_imuCan.loopback = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.listenOnly = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.tripleSampling = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.oneShot = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.berrReporting = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.fd = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.presumeAck = FALSE;
-        GENERIC_IMU_AppData.Generic_imuCan.bitrate = GENERIC_IMU_CFG_CAN_BITRATE;
-        GENERIC_IMU_AppData.Generic_imuCan.second_timeout = GENERIC_IMU_CFG_CAN_TIMEOUT;
-        GENERIC_IMU_AppData.Generic_imuCan.microsecond_timeout = GENERIC_IMU_CFG_CAN_MS_TIMEOUT;
-        GENERIC_IMU_AppData.Generic_imuCan.xfer_us_delay = GENERIC_IMU_CFG_CAN_XFER_US;
-
-        /* Open device specific protocols */
-        status = can_init_dev(&GENERIC_IMU_AppData.Generic_imuCan);
-        if (status == OS_SUCCESS)
-        {
-            GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
-            GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
-            CFE_EVS_SendEvent(GENERIC_IMU_ENABLE_INF_EID, CFE_EVS_INFORMATION, "GENERIC_IMU: Device enabled");
-        }
-        else
-        {
-            GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_IMU_CAN_INIT_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: CAN port initialization error %d", status);
-        }
+        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
+        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
+        CFE_EVS_SendEvent(GENERIC_IMU_ENABLE_INF_EID, CFE_EVS_INFORMATION, "GENERIC_IMU: Device enabled");
     }
     else
     {
@@ -534,19 +490,9 @@ void GENERIC_IMU_Disable(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
-        /* Close device specific protocols */
-        status = can_close_device(&GENERIC_IMU_AppData.Generic_imuCan);
-        if (status == OS_SUCCESS)
-        {
-            GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
-            GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
-            CFE_EVS_SendEvent(GENERIC_IMU_DISABLE_INF_EID, CFE_EVS_INFORMATION, "GENERIC_IMU: Device disabled");
-        }
-        else
-        {
-            GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_IMU_CAN_CLOSE_ERR_EID, CFE_EVS_ERROR, "GENERIC_IMU: CAN port close error %d", status);
-        }
+        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
+        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
+        CFE_EVS_SendEvent(GENERIC_IMU_DISABLE_INF_EID, CFE_EVS_INFORMATION, "GENERIC_IMU: Device disabled");
     }
     else
     {
