@@ -1,7 +1,7 @@
 #include <ItcLogger/Logger.hpp>
 #include <generic_imu_data_point.hpp>
 
-#define IMU_SIM_DATAPOINT_DEBUG
+//#define IMU_SIM_DATAPOINT_DEBUG
 
 namespace Nos3
 {

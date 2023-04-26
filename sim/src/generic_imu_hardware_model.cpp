@@ -177,8 +177,8 @@ namespace Nos3
                 {
                     uint32_t x_linear = (uint32_t)((data_point->get_generic_imu_acc_x())*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    printf("X linear acceleration: %f, converted to %lu \n", data_point->get_generic_imu_acc_x(), x_linear);
-                    printf("X rotational rate: %f, converted to %lu \n", data_point->get_generic_imu_gyro_x(), x_angular);
+                    sim_logger->debug("X linear acceleration: %f, converted to %lu", data_point->get_generic_imu_acc_x(), x_linear);
+                    sim_logger->debug("X rotational rate: %f, converted to %lu", data_point->get_generic_imu_gyro_x(), x_angular);
                     out_data[0] = (x_linear >> 24);
                     out_data[1] = (x_linear >> 16);
                     out_data[2] = (x_linear >> 8 );
@@ -194,8 +194,8 @@ namespace Nos3
                 {
                     uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    printf("Y linear acceleration: %f, converted to %lu \n", data_point->get_generic_imu_acc_y(), y_linear);
-                    printf("Y rotational rate: %f, converted to %lu \n", data_point->get_generic_imu_gyro_y(), y_angular);
+                    sim_logger->debug("Y linear acceleration: %f, converted to %lu", data_point->get_generic_imu_acc_y(), y_linear);
+                    sim_logger->debug("Y rotational rate: %f, converted to %lu", data_point->get_generic_imu_gyro_y(), y_angular);
                     out_data[0] = (y_linear >> 24);
                     out_data[1] = (y_linear >> 16);
                     out_data[2] = (y_linear >> 8 );
@@ -211,8 +211,8 @@ namespace Nos3
                 {
                     uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*_ANG_CONV_CONST + _ANG_CONV_CONST*400); 
-                    printf("Z linear acceleration: %f, converted to %lu \n", data_point->get_generic_imu_acc_z(), z_linear);
-                    printf("Z rotational rate: %f, converted to %lu \n", data_point->get_generic_imu_gyro_z(), z_angular);
+                    sim_logger->debug("Z linear acceleration: %f, converted to %lu", data_point->get_generic_imu_acc_z(), z_linear);
+                    sim_logger->debug("Z rotational rate: %f, converted to %lu", data_point->get_generic_imu_gyro_z(), z_angular);
                     out_data[0] = (z_linear >> 24);
                     out_data[1] = (z_linear >> 16);
                     out_data[2] = (z_linear >> 8 );
@@ -299,7 +299,7 @@ namespace Nos3
 
                     case 2:
                         /* Request data */
-                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data X command received!");
                         create_generic_imu_data(imu_data, 2);
                         out_data.clear();
                         out_data.push_back(0x00); // CAN_ID[0]
@@ -315,7 +315,7 @@ namespace Nos3
 
                     case 3:
                         /* Request data */
-                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data Y command received!");
                         create_generic_imu_data(imu_data, 3);
                         out_data.clear();
                         out_data.push_back(0x00); // CAN_ID[0]
@@ -331,7 +331,7 @@ namespace Nos3
 
                     case 4:
                         /* Request data */
-                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data command received!");
+                        sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Send data Z command received!");
                         create_generic_imu_data(imu_data, 4);
                         out_data.clear();
                         out_data.push_back(0x00); // CAN_ID[0]
@@ -366,7 +366,7 @@ namespace Nos3
                     SimIHardwareModel::uint8_vector_to_hex_string(out_data).c_str());
             }
         }
-    return out_data;
+        return out_data;
     }
 
     IMUCanSlaveConnection::IMUCanSlaveConnection(Generic_imuHardwareModel* hm, int bus_address, std::string connection_string, std::string bus_name)
@@ -382,15 +382,14 @@ namespace Nos3
         // copy data to buffer
         _can_out_data.resize(rlen);
         std::copy(_can_out_data.begin(), _can_out_data.begin() + _can_out_data.size(), rbuf);
-        sim_logger->debug("Generic_imuHardwareModel::can_read[%d]: %s", rlen, SimIHardwareModel::uint8_vector_to_hex_string(_can_out_data).c_str());
-        sim_logger->debug("--");
+        //sim_logger->debug("Generic_imuHardwareModel::can_read[%d]: %s", rlen, SimIHardwareModel::uint8_vector_to_hex_string(_can_out_data).c_str());
         return rlen;
     }
 
     size_t IMUCanSlaveConnection::can_write(const uint8_t *wbuf, size_t wlen)
     {
         std::vector<uint8_t> in_data(wbuf, wbuf + _IMU_CAN_FRAME_SIZE);
-        sim_logger->debug("Generic_imuHardwareModel::can_write[%d]: %s", wlen, SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str());
+        //sim_logger->debug("Generic_imuHardwareModel::can_write[%d]: %s", wlen, SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str());
         _can_out_data = _hardware_model->determine_can_response(in_data);
         return wlen;
     }
