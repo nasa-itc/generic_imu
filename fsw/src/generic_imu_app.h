@@ -63,10 +63,9 @@ typedef struct
     GENERIC_IMU_Device_tlm_t DevicePkt;      /* Device specific data packet */
 
     /* 
-    ** Device protocol
-    ** TODO: Make specific to your application
+    ** Device protocol: CAN
     */ 
-    uart_info_t Generic_imuUart;             /* Hardware protocol definition */
+    can_info_t Generic_imuCan;             /* Hardware protocol definition */
 
 } GENERIC_IMU_AppData_t;
 
