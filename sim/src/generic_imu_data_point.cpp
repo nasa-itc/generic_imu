@@ -16,7 +16,7 @@ namespace Nos3
         _not_parsed = true;
     }
 
-    Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _sc(spacecraft), _dp(*dp)
+    Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  42 Constructor executed");
 
@@ -36,7 +36,7 @@ namespace Nos3
         std::vector<std::string> lines = dp->get_lines();
         try 
         {
-            for (int i = 0; i < lines.size(); i++) 
+            for (unsigned int i = 0; i < lines.size(); i++) 
             {
                 /* Compare prefix */
                 if (lines[i].compare(0, MSsize, MatchString.str()) == 0) 
@@ -84,7 +84,7 @@ namespace Nos3
         std::vector<std::string> lines = _dp.get_lines();
 
         try {
-            for (int i = 0; i < lines.size(); i++) {
+            for (unsigned int i = 0; i < lines.size(); i++) {
                if (lines[i].compare(0, MSGyroSize, MatchStringGyro.str()) == 0) { // e.g. SC[0].AC.gyro[
                   if (lines[i].compare(MSGyroSize, 1, "0") == 0) { // e,g, SC[0].AC.gyro[0
                      size_t found = lines[i].find_first_of("=");
