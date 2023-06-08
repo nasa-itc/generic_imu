@@ -14,6 +14,9 @@ namespace Nos3
         /* Do calculations based on provided data */
         _generic_imu_data_is_valid = true;
         _not_parsed = true;
+        _gyroRates[0] = count;
+        _gyroRates[1] = count;
+        _gyroRates[2] = count;
     }
 
     Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft)
