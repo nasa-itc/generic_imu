@@ -157,7 +157,6 @@ namespace Nos3
     void Generic_imuHardwareModel::create_generic_imu_data(std::vector<uint8_t>& out_data, uint8_t axis)
     {
         boost::shared_ptr<Generic_imuDataPoint> data_point = boost::dynamic_pointer_cast<Generic_imuDataPoint>(_generic_imu_dp->get_data_point());
-        std::uint8_t valid = GENERIC_IMU_SIM_SUCCESS;
 
         /* Prepare data size */
         out_data.resize(8, 0x00); 
@@ -177,8 +176,8 @@ namespace Nos3
                 {
                     uint32_t x_linear = (uint32_t)((data_point->get_generic_imu_acc_x())*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     uint32_t x_angular = (uint32_t)(data_point->get_generic_imu_gyro_x()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    sim_logger->debug("X linear acceleration: %f, converted to %lu", data_point->get_generic_imu_acc_x(), x_linear);
-                    sim_logger->debug("X rotational rate: %f, converted to %lu", data_point->get_generic_imu_gyro_x(), x_angular);
+                    sim_logger->debug("X linear acceleration: %f, converted to %u", data_point->get_generic_imu_acc_x(), x_linear);
+                    sim_logger->debug("X rotational rate: %f, converted to %u", data_point->get_generic_imu_gyro_x(), x_angular);
                     out_data[0] = (x_linear >> 24);
                     out_data[1] = (x_linear >> 16);
                     out_data[2] = (x_linear >> 8 );
@@ -194,8 +193,8 @@ namespace Nos3
                 {
                     uint32_t y_linear = (uint32_t)(data_point->get_generic_imu_acc_y()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     uint32_t y_angular = (uint32_t)(data_point->get_generic_imu_gyro_y()*_ANG_CONV_CONST + _ANG_CONV_CONST*400);
-                    sim_logger->debug("Y linear acceleration: %f, converted to %lu", data_point->get_generic_imu_acc_y(), y_linear);
-                    sim_logger->debug("Y rotational rate: %f, converted to %lu", data_point->get_generic_imu_gyro_y(), y_angular);
+                    sim_logger->debug("Y linear acceleration: %f, converted to %u", data_point->get_generic_imu_acc_y(), y_linear);
+                    sim_logger->debug("Y rotational rate: %f, converted to %u", data_point->get_generic_imu_gyro_y(), y_angular);
                     out_data[0] = (y_linear >> 24);
                     out_data[1] = (y_linear >> 16);
                     out_data[2] = (y_linear >> 8 );
@@ -211,8 +210,8 @@ namespace Nos3
                 {
                     uint32_t z_linear = (uint32_t)(data_point->get_generic_imu_acc_z()*_LIN_CONV_CONST + _LIN_CONV_CONST*10);
                     uint32_t z_angular = (uint32_t)(data_point->get_generic_imu_gyro_z()*_ANG_CONV_CONST + _ANG_CONV_CONST*400); 
-                    sim_logger->debug("Z linear acceleration: %f, converted to %lu", data_point->get_generic_imu_acc_z(), z_linear);
-                    sim_logger->debug("Z rotational rate: %f, converted to %lu", data_point->get_generic_imu_gyro_z(), z_angular);
+                    sim_logger->debug("Z linear acceleration: %f, converted to %u", data_point->get_generic_imu_acc_z(), z_linear);
+                    sim_logger->debug("Z rotational rate: %f, converted to %u", data_point->get_generic_imu_gyro_z(), z_angular);
                     out_data[0] = (z_linear >> 24);
                     out_data[1] = (z_linear >> 16);
                     out_data[2] = (z_linear >> 8 );
@@ -226,7 +225,6 @@ namespace Nos3
 
             default:
                 /* Unused command code */
-                valid = GENERIC_IMU_SIM_ERROR;
                 sim_logger->debug("Generic_imuHardwareModel::create_generic_imu_data:  Fake axis %d received!", axis);
                 break;
 
