@@ -188,7 +188,7 @@ int32 GENERIC_IMU_AppInit(void)
     ** Initialize hardware interface data
     */ 
     
-    GENERIC_IMU_AppData.Generic_imuCan.handle = GENERIC_IMU_CFG_STRING;
+    GENERIC_IMU_AppData.Generic_imuCan.handle = GENERIC_IMU_CFG_HANDLE;
     GENERIC_IMU_AppData.Generic_imuCan.isUp = CAN_INTERFACE_DOWN;
     GENERIC_IMU_AppData.Generic_imuCan.loopback = FALSE;
     GENERIC_IMU_AppData.Generic_imuCan.listenOnly = FALSE;

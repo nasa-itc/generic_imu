@@ -23,15 +23,12 @@
 void GENERIC_IMU_FramePrep(can_info_t *device, uint8_t* data, uint8_t data_len)
 {
     /* TX Frame */
-    //device->tx_frame.can_id = ((uint32_t)(cmd->msg_type & 0x1F) << 24) + 
-    //                          ((uint32_t)(cmd->cmd_id) << 16) + 
-    //                          ((uint32_t)(cmd->src_mask) << 8) + 
-    //                          ((uint32_t)(cmd->dest_mask));    
+    device->tx_frame.can_id = GENERIC_IMU_CFG_CAN_ID;
     device->tx_frame.can_dlc = data_len;
     CFE_PSP_MemCpy((void*)device->tx_frame.data, data, CAN_MAX_DLEN);
     
     /* RX Frame */
-    device->rx_frame.can_id = 0;
+    device->rx_frame.can_id = GENERIC_IMU_CFG_CAN_ID;
     device->rx_frame.can_dlc = 0;
     CFE_PSP_MemSet((void*)device->rx_frame.data, 0x00, CAN_MAX_DLEN);
 }
