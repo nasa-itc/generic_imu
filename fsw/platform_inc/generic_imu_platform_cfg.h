@@ -19,8 +19,8 @@
     **   This needs to be changed from uart to can; how exactly
     **   that will work is unclear.
     */
-    #define GENERIC_IMU_CFG_STRING           "can_1"
     #define GENERIC_IMU_CFG_HANDLE           0 
+    #define GENERIC_IMU_CFG_CAN_ID           15
     #define GENERIC_IMU_CFG_BAUDRATE_HZ      115200
     #define GENERIC_IMU_CFG_MS_TIMEOUT       50            /* Max 255 */
 
