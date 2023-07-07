@@ -39,7 +39,7 @@ typedef struct
     uint32_t  DeviceCounter;
     uint32_t  DeviceStatus;
 
-} OS_PACK GENERIC_IMU_Device_HK_tlm_t;
+} __attribute__((packed)) GENERIC_IMU_Device_HK_tlm_t;
 #define GENERIC_IMU_DEVICE_HK_LNGTH sizeof ( GENERIC_IMU_Device_HK_tlm_t )
 #define GENERIC_IMU_DEVICE_HK_SIZE GENERIC_IMU_DEVICE_HK_LNGTH + GENERIC_IMU_DEVICE_HDR_TRL_LEN
 
@@ -48,14 +48,14 @@ typedef struct
 */
 typedef struct
 {
-    uint8_t     CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint8_t     CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
     uint8_t     msg_type;
     uint8_t     cmd_id;
     uint8_t     src_mask;
     uint8_t     dest_mask;
     uint8_t     data_len;
     uint8_t     data[CAN_MAX_DLEN];
-} OS_PACK GENERIC_IMU_Cmd_t;
+} __attribute__((packed)) GENERIC_IMU_Cmd_t;
 #define GENERIC_IMU_CMD_LEN (sizeof(GENERIC_IMU_Cmd_t))
 
 
@@ -66,7 +66,7 @@ typedef struct
 {
     float       LinearAcc;
     float       AngularAcc;
-} OS_PACK GENERIC_IMU_Device_Axis_Data_t;
+} __attribute__((packed)) GENERIC_IMU_Device_Axis_Data_t;
 #define GENERIC_IMU_DEVICE_AXIS_DATA_LNGTH sizeof ( GENERIC_IMU_Device_Axis_Data_t )
 #define GENERIC_IMU_DEVICE_X_DATA_SIZE GENERIC_IMU_DEVICE_X_DATA_LNGTH + GENERIC_IMU_DEVICE_HDR_TRL_LEN
 
@@ -80,7 +80,7 @@ typedef struct
     GENERIC_IMU_Device_Axis_Data_t Y_Data;
     GENERIC_IMU_Device_Axis_Data_t Z_Data;
 
-} OS_PACK GENERIC_IMU_Device_Data_tlm_t;
+} __attribute__((packed)) GENERIC_IMU_Device_Data_tlm_t;
 #define GENERIC_IMU_DEVICE_DATA_LNGTH sizeof ( GENERIC_IMU_Device_Data_tlm_t )
 #define GENERIC_IMU_DEVICE_DATA_SIZE GENERIC_IMU_DEVICE_DATA_LNGTH + GENERIC_IMU_DEVICE_HDR_TRL_LEN
 

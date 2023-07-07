@@ -52,7 +52,7 @@ typedef struct
     /*
     ** Operational data  - not reported in housekeeping
     */
-    CFE_SB_MsgPtr_t MsgPtr;             /* Pointer to msg received on software bus */
+    CFE_MSG_Message_t * MsgPtr;             /* Pointer to msg received on software bus */
     CFE_SB_PipeId_t CmdPipe;            /* Pipe Id for HK command pipe */
     uint32 RunStatus;                   /* App run status for controlling the application state */
 
@@ -81,10 +81,10 @@ extern GENERIC_IMU_AppData_t GENERIC_IMU_AppData; /* GENERIC_IMU App Data */
 **
 ** Local function prototypes.
 **
-** Note: Except for the entry point (GENERIC_IMU_AppMain), these
+** Note: Except for the entry point (IMU_AppMain), these
 **       functions are not called from any other source module.
 */
-void  GENERIC_IMU_AppMain(void);
+void  IMU_AppMain(void);
 int32 GENERIC_IMU_AppInit(void);
 void  GENERIC_IMU_ProcessCommandPacket(void);
 void  GENERIC_IMU_ProcessGroundCommand(void);
@@ -94,6 +94,6 @@ void  GENERIC_IMU_ReportDeviceTelemetry(void);
 void  GENERIC_IMU_ResetCounters(void);
 void  GENERIC_IMU_Enable(void);
 void  GENERIC_IMU_Disable(void);
-int32 GENERIC_IMU_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length);
+int32 GENERIC_IMU_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length);
 
 #endif /* _GENERIC_IMU_APP_H_ */
