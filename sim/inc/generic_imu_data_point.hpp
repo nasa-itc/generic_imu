@@ -17,12 +17,12 @@ namespace Nos3
         /* Accessors */
         /* Provide the hardware model a way to get the specific data out of the data point */
         std::string to_string(void) const;
-        float       get_generic_imu_gyro_x(void) const {parse_data_point(); return _gyroRates[0];}
-        float       get_generic_imu_acc_x(void) const {parse_data_point(); return _accelRates[0];}
-        float       get_generic_imu_gyro_y(void) const {parse_data_point(); return _gyroRates[1];}
-        float       get_generic_imu_acc_y(void) const {parse_data_point(); return _accelRates[1];}
-        float       get_generic_imu_gyro_z(void) const {parse_data_point(); return _gyroRates[2];}
-        float       get_generic_imu_acc_z(void) const {parse_data_point(); return _accelRates[2];}
+        float       get_generic_imu_gyro_x(void) const {return _gyroRates[0];}
+        float       get_generic_imu_acc_x(void) const {return _accelRates[0];}
+        float       get_generic_imu_gyro_y(void) const {return _gyroRates[1];}
+        float       get_generic_imu_acc_y(void) const {return _accelRates[1];}
+        float       get_generic_imu_gyro_z(void) const {return _gyroRates[2];}
+        float       get_generic_imu_acc_z(void) const {return _accelRates[2];}
 
         bool        is_generic_imu_data_valid(void) const {return _generic_imu_data_is_valid;}
     
@@ -36,13 +36,8 @@ namespace Nos3
         /* You only get to this data through the accessors above */
         mutable bool   _generic_imu_data_is_valid;
 
-        // Added from the previous version of the IMU (stim300)
-        inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
-        void        do_parsing(void) const;
- 
         Sim42DataPoint _dp;
         int16_t _sc;
-        mutable bool _not_parsed;
 //        mutable std::vector<float> _gyroRates, _accelRates;
         mutable float _gyroRates[3];
         mutable float _accelRates[3];
