@@ -7,7 +7,7 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_imuDataPoint::Generic_imuDataPoint(double count)
+    Generic_imuDataPoint::Generic_imuDataPoint(double count): _not_parsed(false)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  Defined Constructor executed");
 
@@ -18,13 +18,16 @@ namespace Nos3
         _gyroRates[2] = count;
     }
 
-    Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft)
+    Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  42 Constructor executed");
 
         /* Initialize data */
         _generic_imu_data_is_valid = false;
+    }
 
+    void Generic_imuDataPoint::do_parsing(void) const
+    {    
         try {
         /*
         ** Declare 42 telemetry string prefix
@@ -32,7 +35,7 @@ namespace Nos3
         ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
         */
             std::string keya0;
-            keya0.append("SC[").append(std::to_string(spacecraft)).append("].AC.");
+            keya0.append("SC[").append(std::to_string(_sc)).append("].AC.");
             std::string keya1(keya0), keya2(keya0), keyg0(keya0), keyg1(keya0), keyg2(keya0);
             keya0.append("Accel[0].Acc");
             keya1.append("Accel[1].Acc");
@@ -42,14 +45,15 @@ namespace Nos3
             keyg2.append("Gyro[2].Rate");
 
             /* Parse 42 telemetry */
-            _accelRates[0] = std::stof(dp->get_value_for_key(keya0));
-            _accelRates[1] = std::stof(dp->get_value_for_key(keya1));
-            _accelRates[2] = std::stof(dp->get_value_for_key(keya2));
-            _gyroRates[0] = std::stof(dp->get_value_for_key(keyg0));
-            _gyroRates[1] = std::stof(dp->get_value_for_key(keyg1));
-            _gyroRates[2] = std::stof(dp->get_value_for_key(keyg2));
+            _accelRates[0] = std::stof(_dp.get_value_for_key(keya0));
+            _accelRates[1] = std::stof(_dp.get_value_for_key(keya1));
+            _accelRates[2] = std::stof(_dp.get_value_for_key(keya2));
+            _gyroRates[0] = std::stof(_dp.get_value_for_key(keyg0));
+            _gyroRates[1] = std::stof(_dp.get_value_for_key(keyg1));
+            _gyroRates[2] = std::stof(_dp.get_value_for_key(keyg2));
 
             _generic_imu_data_is_valid = true;
+            _not_parsed = false;
         }
         catch(const std::exception& e) 
         {
