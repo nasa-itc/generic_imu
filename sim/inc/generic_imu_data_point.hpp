@@ -24,7 +24,7 @@ namespace Nos3
         float       get_generic_imu_gyro_z(void) const {parse_data_point(); return _gyroRates[2];}
         float       get_generic_imu_acc_z(void) const {parse_data_point(); return _accelRates[2];}
 
-        bool        is_generic_imu_data_valid(void) const {return _generic_imu_data_is_valid;}
+        bool        is_generic_imu_data_valid(void) const {parse_data_point(); return _generic_imu_data_is_valid;}
     
     private:
         /* Disallow these */
@@ -32,18 +32,19 @@ namespace Nos3
         Generic_imuDataPoint(const Generic_imuDataPoint&) {};
         ~Generic_imuDataPoint(void) {};
 
+         // Private mutators
+        inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
+        void do_parsing(void) const;
+
+        // Private data
+        mutable Sim42DataPoint _dp;
+        int16_t _sc;
+        // mutable below so parsing can be on demand:
+        mutable bool _not_parsed;
+
         /* Specific data you need to get from the data provider to the hardware model */
         /* You only get to this data through the accessors above */
         mutable bool   _generic_imu_data_is_valid;
-
-        // Added from the previous version of the IMU (stim300)
-        inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
-        void        do_parsing(void) const;
- 
-        Sim42DataPoint _dp;
-        int16_t _sc;
-        mutable bool _not_parsed;
-//        mutable std::vector<float> _gyroRates, _accelRates;
         mutable float _gyroRates[3];
         mutable float _accelRates[3];
     };
