@@ -21,7 +21,7 @@ namespace Nos3
     private:
         /* Disallow these */
         ~Generic_imu42DataProvider(void) {};
-        Generic_imu42DataProvider& operator=(const Generic_imu42DataProvider&) {};
+        Generic_imu42DataProvider& operator=(const Generic_imu42DataProvider&) {return *this;};
 
         int16_t _sc;  /* Which spacecraft number to parse out of 42 data */
     };

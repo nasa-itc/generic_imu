@@ -1,67 +1,60 @@
 #include <ItcLogger/Logger.hpp>
 #include <generic_imu_data_point.hpp>
 
+//#define IMU_SIM_DATAPOINT_DEBUG
+
 namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_imuDataPoint::Generic_imuDataPoint(double count)
+    Generic_imuDataPoint::Generic_imuDataPoint(double count): _not_parsed(false)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  Defined Constructor executed");
 
         /* Do calculations based on provided data */
         _generic_imu_data_is_valid = true;
-        _generic_imu_data[0] = count * 0.001;
-        _generic_imu_data[1] = count * 0.002;
-        _generic_imu_data[2] = count * 0.003;
+        _gyroRates[0] = count;
+        _gyroRates[1] = count;
+        _gyroRates[2] = count;
     }
 
-    Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
+    Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  42 Constructor executed");
 
         /* Initialize data */
         _generic_imu_data_is_valid = false;
-        _generic_imu_data[0] = 0.0;
-        _generic_imu_data[1] = 0.0;
-        _generic_imu_data[2] = 0.0;
+    }
 
+    void Generic_imuDataPoint::do_parsing(void) const
+    {    
+        try {
         /*
         ** Declare 42 telemetry string prefix
         ** 42 variables defined in `42/Include/42types.h`
         ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
         */
-        std::ostringstream MatchString;
-        MatchString << "SC[" << spacecraft << "].svb = "; /* TODO: Change me to match the data from 42 you are interested in */
-        size_t MSsize = MatchString.str().size();
+            std::string keya0;
+            keya0.append("SC[").append(std::to_string(_sc)).append("].AC.");
+            std::string keya1(keya0), keya2(keya0), keyg0(keya0), keyg1(keya0), keyg2(keya0);
+            keya0.append("Accel[0].Acc");
+            keya1.append("Accel[1].Acc");
+            keya2.append("Accel[2].Acc");
+            keyg0.append("Gyro[0].Rate");
+            keyg1.append("Gyro[1].Rate");
+            keyg2.append("Gyro[2].Rate");
 
-        /* Parse 42 telemetry */
-        std::vector<std::string> lines = dp->get_lines();
-        try 
-        {
-            for (int i = 0; i < lines.size(); i++) 
-            {
-                /* Compare prefix */
-                if (lines[i].compare(0, MSsize, MatchString.str()) == 0) 
-                {
-                    size_t found = lines[i].find_first_of("=");
-                    /* Parse line */
-                    std::istringstream iss(lines[i].substr(found+1, lines[i].size()-found-1));
-                    /* Custom work to extract the data from the 42 string and save it off in the member data of this data point */
-                    std::string s;
-                    iss >> s;
-                    _generic_imu_data[0] = std::stod(s);
-                    iss >> s;
-                    _generic_imu_data[1] = std::stod(s);
-                    iss >> s;
-                    _generic_imu_data[2] = std::stod(s);
-                    /* Mark data as valid */
-                    _generic_imu_data_is_valid = true;
-                    /* Debug print */
-                    sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  Parsed svb = %f %f %f", _generic_imu_data[0], _generic_imu_data[1], _generic_imu_data[2]);
-                }
-            }
-        } 
+            /* Parse 42 telemetry */
+            _accelRates[0] = std::stof(_dp.get_value_for_key(keya0));
+            _accelRates[1] = std::stof(_dp.get_value_for_key(keya1));
+            _accelRates[2] = std::stof(_dp.get_value_for_key(keya2));
+            _gyroRates[0] = std::stof(_dp.get_value_for_key(keyg0));
+            _gyroRates[1] = std::stof(_dp.get_value_for_key(keyg1));
+            _gyroRates[2] = std::stof(_dp.get_value_for_key(keyg2));
+
+            _generic_imu_data_is_valid = true;
+            _not_parsed = false;
+        }
         catch(const std::exception& e) 
         {
             /* Report error */
@@ -69,6 +62,10 @@ namespace Nos3
         }
     }
 
+
+   /*************************************************************************
+    * Accessors
+    *************************************************************************/
     /* Used for printing a representation of the data point */
     std::string Generic_imuDataPoint::to_string(void) const
     {
@@ -80,12 +77,20 @@ namespace Nos3
         ss << "Generic_imu Data Point:   Valid: ";
         ss << (_generic_imu_data_is_valid ? "Valid" : "INVALID");
         ss << std::setprecision(std::numeric_limits<double>::digits10); /* Full double precision */
-        ss << " Generic_imu Data: "
-           << _generic_imu_data[0]
-           << " "
-           << _generic_imu_data[1]
-           << " "
-           << _generic_imu_data[2];
+        ss << " Generic_imu Linear Acceleration Data: "
+            << _accelRates[0]
+            << ", "
+            << _accelRates[1]
+            << ", "
+            << _accelRates[2]
+            << "; "
+            << " Generic_imu Angular Rotation Data: "
+            << _gyroRates[0]
+            << ", "
+            << _gyroRates[1]
+            << ", "
+            << _gyroRates[2];
+
 
         return ss.str();
     }

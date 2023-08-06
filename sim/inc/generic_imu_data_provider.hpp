@@ -20,7 +20,7 @@ namespace Nos3
     private:
         /* Disallow these */
         ~Generic_imuDataProvider(void) {};
-        Generic_imuDataProvider& operator=(const Generic_imuDataProvider&) {};
+        Generic_imuDataProvider& operator=(const Generic_imuDataProvider&) {return *this;};
 
         mutable double _request_count;
     };

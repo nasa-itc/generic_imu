@@ -11,49 +11,44 @@
 */
 #include "generic_imu_device.h"
 
+// Both of the below constants are defined to allow the greatest possible precision
+// without overflow on a range of -10<x<10 for x=linear acceleration (in g) and
+// -400<x<400 for x=angular rotation rate (in deg/s).
+#define LIN_CONV_CONST 214748364.0 //multiply by 10 to get the added constant
+#define ANG_CONV_CONST 5368709.0 //multiply by 400 to get the added constant
+
+/*
+** Helper Function
+*/
+void GENERIC_IMU_FramePrep(can_info_t *device, uint8_t* data, uint8_t data_len)
+{
+    /* TX Frame */
+    device->tx_frame.can_id = GENERIC_IMU_CFG_CAN_ID;
+    device->tx_frame.can_dlc = data_len;
+    CFE_PSP_MemCpy((void*)device->tx_frame.data, data, CAN_MAX_DLEN);
+    
+    /* RX Frame */
+    device->rx_frame.can_id = GENERIC_IMU_CFG_CAN_ID;
+    device->rx_frame.can_dlc = 0;
+    CFE_PSP_MemSet((void*)device->rx_frame.data, 0x00, CAN_MAX_DLEN);
+}
 
 /* 
 ** Generic read data from device
 */
-int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
+int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length)
 {
     int32_t status = OS_SUCCESS;
-    int32_t bytes = 0;
-    int32_t bytes_available = 0;
-    uint8_t ms_timeout_counter = 0;
 
     /* Wait until all data received or timeout occurs */
-    bytes_available = uart_bytes_available(handle);
-    while((bytes_available < data_length) && (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT))
+    status = can_master_transaction(canDevice);
+    if (status != CAN_SUCCESS)
     {
-        ms_timeout_counter++;
-        OS_TaskDelay(1);
-        bytes_available = uart_bytes_available(handle);
+        #ifdef GENERIC_IMU_CFG_DEBUG
+            OS_printf("GENERIC_IMU_ReadData: GENERIC_IMU_ReadData can_master_transaction failed with %d error! \n", status);
+        #endif
+        status = CAN_ERROR;
     }
-
-    if (ms_timeout_counter < GENERIC_IMU_CFG_MS_TIMEOUT)
-    {
-        /* Limit bytes available */
-        if (bytes_available > data_length)
-        {
-            bytes_available = data_length;
-        }
-        
-        /* Read data */
-        bytes = uart_read_port(handle, read_data, bytes_available);
-        if (bytes != bytes_available)
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_ReadData: Bytes read != to requested! \n");
-            #endif
-            status = OS_ERROR;
-        } /* uart_read */
-    }
-    else
-    {
-        status = OS_ERROR;
-    } /* ms_timeout_counter */
-
     return status;
 }
 
@@ -62,70 +57,24 @@ int32_t GENERIC_IMU_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_le
 ** Generic command to device
 ** Note that confirming the echoed response is specific to this implementation
 */
-int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
+int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
     uint8_t write_data[GENERIC_IMU_DEVICE_CMD_SIZE] = {0};
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
-
-    payload = CFE_MAKE_BIG32(payload);
 
     /* Prepare command */
-    write_data[0] = GENERIC_IMU_DEVICE_HDR_0;
-    write_data[1] = GENERIC_IMU_DEVICE_HDR_1;
-    write_data[2] = cmd_code;
-    write_data[3] = payload >> 24;
-    write_data[4] = payload >> 16;
-    write_data[5] = payload >> 8;
-    write_data[6] = payload;
-    write_data[7] = GENERIC_IMU_DEVICE_TRAILER_0;
-    write_data[8] = GENERIC_IMU_DEVICE_TRAILER_1;
+    write_data[0] = GENERIC_IMU_DEVICE_HDR;
+    write_data[1] = cmd_code;
 
-    /* Flush any prior data */
-    status = uart_flush(handle);
-    if (status == UART_SUCCESS)
+    GENERIC_IMU_FramePrep(canDevice, write_data, GENERIC_IMU_DEVICE_CMD_SIZE);
+    status = GENERIC_IMU_ReadData(canDevice, GENERIC_IMU_DEVICE_CMD_SIZE);
+    if (status != OS_SUCCESS)
     {
-        /* Write data */
-        bytes = uart_write_port(handle, write_data, GENERIC_IMU_DEVICE_CMD_SIZE);
         #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_CommandDevice[%d] = ", bytes);
-            for (uint32_t i = 0; i < GENERIC_IMU_DEVICE_CMD_SIZE; i++)
-            {
-                OS_printf("%02x", write_data[i]);
-            }
-            OS_printf("\n");
+        OS_printf("GENERIC_IMU_CommandDevice - GENERIC_IMU_ReadData returned %d \n", status);
         #endif
-        if (bytes == GENERIC_IMU_DEVICE_CMD_SIZE)
-        {
-            status = GENERIC_IMU_ReadData(handle, read_data, GENERIC_IMU_DEVICE_CMD_SIZE);
-            if (status == OS_SUCCESS)
-            {
-                /* Confirm echoed response */
-                bytes = 0;
-                while ((bytes < (int32_t) GENERIC_IMU_DEVICE_CMD_SIZE) && (status == OS_SUCCESS))
-                {
-                    if (read_data[bytes] != write_data[bytes])
-                    {
-                        status = OS_ERROR;
-                    }
-                    bytes++;
-                }
-            } /* GENERIC_IMU_ReadData */
-            else
-            {
-                #ifdef GENERIC_IMU_CFG_DEBUG
-                    OS_printf("GENERIC_IMU_CommandDevice - GENERIC_IMU_ReadData returned %d \n", status);
-                #endif
-            }
-        } 
-        else
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("GENERIC_IMU_CommandDevice - uart_write_port returned %d, expected %d \n", bytes, GENERIC_IMU_DEVICE_CMD_SIZE);
-            #endif
-        } /* uart_write */
-    } /* uart_flush*/
+    }
     return status;
 }
 
@@ -133,72 +82,86 @@ int32_t GENERIC_IMU_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t pay
 /*
 ** Request housekeeping command
 */
-int32_t GENERIC_IMU_RequestHK(int32_t handle, GENERIC_IMU_Device_HK_tlm_t* data)
+int32_t GENERIC_IMU_RequestHK(can_info_t *canDevice, GENERIC_IMU_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_HK_SIZE] = {0};
 
-    /* Command device to send HK */
-    status = GENERIC_IMU_CommandDevice(handle, GENERIC_IMU_DEVICE_REQ_HK_CMD, 0);
+    status = GENERIC_IMU_CommandDevice(canDevice, GENERIC_IMU_DEVICE_REQ_HK_CMD);
     if (status == OS_SUCCESS)
     {
-        /* Read HK data */
-        status = GENERIC_IMU_ReadData(handle, read_data, sizeof(read_data));
-        if (status == OS_SUCCESS)
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestHK = ");
-                for (uint32_t i = 0; i < sizeof(read_data); i++)
-                {
-                    OS_printf("%02x", read_data[i]);
-                }
-                OS_printf("\n");
-            #endif
-
-            /* Verify data header and trailer */
-            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR_0)     && 
-                (read_data[1]  == GENERIC_IMU_DEVICE_HDR_1)     && 
-                (read_data[14] == GENERIC_IMU_DEVICE_TRAILER_0) && 
-                (read_data[15] == GENERIC_IMU_DEVICE_TRAILER_1) )
+        #ifdef GENERIC_IMU_CFG_DEBUG
+            OS_printf("  GENERIC_IMU_RequestHK[%d] = ", canDevice->rx_frame.can_dlc);
+            for (uint32_t i = 0; i < canDevice->rx_frame.can_dlc; i++)
             {
-                data->DeviceCounter  = read_data[2] << 24;
-                data->DeviceCounter |= read_data[3] << 16;
-                data->DeviceCounter |= read_data[4] << 8;
-                data->DeviceCounter |= read_data[5];
-
-                data->DeviceConfig  = read_data[6] << 24;
-                data->DeviceConfig |= read_data[7] << 16;
-                data->DeviceConfig |= read_data[8] << 8;
-                data->DeviceConfig |= read_data[9];
-
-                data->DeviceStatus  = read_data[10] << 24;
-                data->DeviceStatus |= read_data[11] << 16;
-                data->DeviceStatus |= read_data[12] << 8;
-                data->DeviceStatus |= read_data[13];
-
-                #ifdef GENERIC_IMU_CFG_DEBUG
-                    OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-                    OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                    OS_printf("  Config  = 0x%08x      \n", data->DeviceConfig);
-                    OS_printf("  Status  = 0x%08x      \n", data->DeviceStatus);
-                    OS_printf("  Trailer = 0x%02x%02x  \n", read_data[14], read_data[15]);
-                #endif
+                OS_printf("%02x", canDevice->rx_frame.data[i]);
             }
-            else
-            {
-                #ifdef GENERIC_IMU_CFG_DEBUG
-                    OS_printf("  GENERIC_IMU_RequestHK: GENERIC_IMU_ReadData reported error %d \n", status);
-                #endif 
-                status = OS_ERROR;
-            }
-        } /* GENERIC_IMU_ReadData */
+            OS_printf("\n");
+        #endif
+
+        data->DeviceCounter  = canDevice->rx_frame.data[0] << 24;
+        data->DeviceCounter |= canDevice->rx_frame.data[1] << 16;
+        data->DeviceCounter |= canDevice->rx_frame.data[2] << 8;
+        data->DeviceCounter |= canDevice->rx_frame.data[3];
+
+        data->DeviceStatus  = canDevice->rx_frame.data[4] << 24;
+        data->DeviceStatus |= canDevice->rx_frame.data[5] << 16;
+        data->DeviceStatus |= canDevice->rx_frame.data[6] << 8;
+        data->DeviceStatus |= canDevice->rx_frame.data[7];
+
+        #ifdef GENERIC_IMU_CFG_DEBUG
+            OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
+            OS_printf("  Status  = 0x%08x      \n", data->DeviceStatus);
+        #endif
     }
+    return status;
+}
+
+
+/*
+** Request Axis
+*/
+int32_t GENERIC_IMU_RequestAxis(can_info_t *canDevice, GENERIC_IMU_Device_Axis_Data_t* data, uint8_t cmd_code)
+{
+    int32_t status = OS_SUCCESS;
+    uint32_t la_tmp;
+    uint32_t aa_tmp;
+
+    status = GENERIC_IMU_CommandDevice(canDevice, cmd_code);
+    if (status == OS_SUCCESS)
+    {
+        #ifdef GENERIC_IMU_CFG_DEBUG
+            OS_printf("  GENERIC_IMU_RequestAxis %d, [%d] = ", cmd_code, canDevice->rx_frame.can_dlc);
+            for (uint32_t i = 0; i < canDevice->rx_frame.can_dlc; i++)
+            {
+                OS_printf("%02x", canDevice->rx_frame.data[i]);
+            }
+            OS_printf("\n");
+        #endif
+
+        /* Verify return frame length */
+
+        /* Proces data */
+        la_tmp  = canDevice->rx_frame.data[0] << 24;
+        la_tmp |= canDevice->rx_frame.data[1] << 16;
+        la_tmp |= canDevice->rx_frame.data[2] << 8;
+        la_tmp |= canDevice->rx_frame.data[3];
+
+        aa_tmp  = canDevice->rx_frame.data[4] << 24;
+        aa_tmp |= canDevice->rx_frame.data[5] << 16;
+        aa_tmp |= canDevice->rx_frame.data[6] << 8;
+        aa_tmp |= canDevice->rx_frame.data[7];
+
+        /* Float conversion */
+        data->LinearAcc  = (float) ((la_tmp - (LIN_CONV_CONST*10.0)) / LIN_CONV_CONST);
+        data->AngularAcc  = (float) ((aa_tmp - (ANG_CONV_CONST*400.0)) / ANG_CONV_CONST);
+    } 
     else
     {
         #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestHK: GENERIC_IMU_CommandDevice reported error %d \n", status);
+            OS_printf("  GENERIC_IMU_RequestAxis: Invalid data read! \n");
         #endif 
-    }
+        status = OS_ERROR;
+    } 
     return status;
 }
 
@@ -206,71 +169,41 @@ int32_t GENERIC_IMU_RequestHK(int32_t handle, GENERIC_IMU_Device_HK_tlm_t* data)
 /*
 ** Request data command
 */
-int32_t GENERIC_IMU_RequestData(int32_t handle, GENERIC_IMU_Device_Data_tlm_t* data)
+int32_t GENERIC_IMU_RequestData(can_info_t *canDevice, GENERIC_IMU_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[GENERIC_IMU_DEVICE_DATA_SIZE] = {0};
 
-    /* Command device to send HK */
-    status = GENERIC_IMU_CommandDevice(handle, GENERIC_IMU_DEVICE_REQ_DATA_CMD, 0);
+    status = GENERIC_IMU_RequestAxis(canDevice, &data->X_Data, GENERIC_IMU_DEVICE_REQ_X_DATA_CMD);
     if (status == OS_SUCCESS)
     {
-        /* Read HK data */
-        status = GENERIC_IMU_ReadData(handle, read_data, sizeof(read_data));
+        status = GENERIC_IMU_RequestAxis(canDevice, &data->Y_Data, GENERIC_IMU_DEVICE_REQ_Y_DATA_CMD);
         if (status == OS_SUCCESS)
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestData = ");
-                for (uint32_t i = 0; i < sizeof(read_data); i++)
-                {
-                    OS_printf("%02x", read_data[i]);
-                }
-                OS_printf("\n");
-            #endif
-
-            /* Verify data header and trailer */
-            if ((read_data[0]  == GENERIC_IMU_DEVICE_HDR_0)     && 
-                (read_data[1]  == GENERIC_IMU_DEVICE_HDR_1)     && 
-                (read_data[12] == GENERIC_IMU_DEVICE_TRAILER_0) && 
-                (read_data[13] == GENERIC_IMU_DEVICE_TRAILER_1) )
-            {
-                data->DeviceCounter  = read_data[2] << 24;
-                data->DeviceCounter |= read_data[3] << 16;
-                data->DeviceCounter |= read_data[4] << 8;
-                data->DeviceCounter |= read_data[5];
-
-                data->DeviceDataX  = read_data[6] << 8;
-                data->DeviceDataX |= read_data[7];
-
-                data->DeviceDataY  = read_data[8] << 8;
-                data->DeviceDataY |= read_data[9];
-                
-                data->DeviceDataZ  = read_data[10] << 8;
-                data->DeviceDataZ |= read_data[11];
-
-                #ifdef GENERIC_IMU_CFG_DEBUG
-                    OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-                    OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
-                    OS_printf("  Data X  = 0x%04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
-                    OS_printf("  Data Y  = 0x%04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
-                    OS_printf("  Data Z  = 0x%04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
-                    OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
-                #endif
-            }
-        } 
-        else
-        {
-            #ifdef GENERIC_IMU_CFG_DEBUG
-                OS_printf("  GENERIC_IMU_RequestData: Invalid data read! \n");
-            #endif 
-            status = OS_ERROR;
-        } /* GENERIC_IMU_ReadData */
+        {   
+            status = GENERIC_IMU_RequestAxis(canDevice, &data->Z_Data, GENERIC_IMU_DEVICE_REQ_Z_DATA_CMD);
+        }
     }
-    else
-    {
-        #ifdef GENERIC_IMU_CFG_DEBUG
-            OS_printf("  GENERIC_IMU_RequestData: GENERIC_IMU_CommandDevice reported error %d \n", status);
-        #endif 
-    }
+
+    #ifdef GENERIC_IMU_CFG_DEBUG
+        if (status != OS_SUCCESS)
+        {
+            OS_printf("  GENERIC_IMU_RequestData: Error %d reported in GENERIC_IMU_RequestAxis \n", status);
+        }
+        OS_printf("GENERIC_IMU_RequestData\n");
+        OS_printf("  Linear X  = 0x%08x, ", data->X_Data.LinearAcc);
+        OS_printf("%f  \n", data->X_Data.LinearAcc);
+        OS_printf("  Angular X = 0x%08x, ", data->X_Data.AngularAcc);
+        OS_printf("%f  \n",  data->X_Data.AngularAcc);
+        OS_printf("  Linear Y  = 0x%08x, ", data->Y_Data.LinearAcc);
+        OS_printf("%f  \n", data->Y_Data.LinearAcc);
+        OS_printf("  Angular Y = 0x%08x, ", data->Y_Data.AngularAcc);
+        OS_printf("%f  \n",  data->Y_Data.AngularAcc);
+        OS_printf("  Linear Z  = 0x%08x, ", data->Z_Data.LinearAcc);
+        OS_printf("%f  \n", data->Z_Data.LinearAcc);
+        OS_printf("  Angular Z = 0x%08x, ", data->Z_Data.AngularAcc);
+        OS_printf("%f  \n",  data->Z_Data.AngularAcc);
+        OS_printf("\n");
+    #endif 
+
     return status;
 }
+

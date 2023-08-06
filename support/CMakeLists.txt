@@ -24,6 +24,6 @@ include_directories("../../../fsw/apps/hwlib/fsw/public_inc")
 add_executable(generic_imu_checkout 
                generic_imu_checkout.c 
                ../fsw/src/generic_imu_device.c
-               ../../../fsw/apps/hwlib/fsw/linux/libuart.c
+               ../../../fsw/apps/hwlib/fsw/linux/libcan.c
               )
 target_link_libraries(generic_imu_checkout)
