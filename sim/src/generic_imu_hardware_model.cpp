@@ -254,7 +254,7 @@ namespace Nos3
             /* Check if message is incorrect size */
             if (in_data.size() != 14) 
             {
-                sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command size of %d received!", in_data.size());
+                sim_logger->debug("Generic_imuHardwareModel::determine_can_response:  Invalid command size of %ld received!", in_data.size());
                 valid = GENERIC_IMU_SIM_ERROR;
             }
             else
