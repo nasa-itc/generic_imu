@@ -521,7 +521,7 @@ int32 GENERIC_IMU_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_lengt
         CFE_MSG_GetFcnCode(msg, &cmd_code);
 
         CFE_EVS_SendEvent(GENERIC_IMU_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d",
+           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %ld, Expected = %d",
               CFE_SB_MsgIdToValue(msg_id), cmd_code, actual_length, expected_length);
 
         status = OS_ERROR;
