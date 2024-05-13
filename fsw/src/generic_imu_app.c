@@ -262,7 +262,6 @@ void GENERIC_IMU_ProcessCommandPacket(void)
 */
 void GENERIC_IMU_ProcessGroundCommand(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -346,7 +345,6 @@ void GENERIC_IMU_ProcessGroundCommand(void)
 */
 void GENERIC_IMU_ProcessTelemetryRequest(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -458,8 +456,6 @@ void GENERIC_IMU_ResetCounters(void)
 */
 void GENERIC_IMU_Enable(void)
 {
-    int32 status = OS_SUCCESS;
-
     /* Check that device is disabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_DISABLED)
     {
@@ -481,8 +477,6 @@ void GENERIC_IMU_Enable(void)
 */
 void GENERIC_IMU_Disable(void)
 {
-    int32 status = OS_SUCCESS;
-
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {

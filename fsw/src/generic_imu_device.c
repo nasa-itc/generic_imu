@@ -60,7 +60,6 @@ int32_t GENERIC_IMU_ReadData(can_info_t *canDevice, uint8_t data_length)
 int32_t GENERIC_IMU_CommandDevice(can_info_t *canDevice, uint8_t cmd_code)
 {
     int32_t status = OS_SUCCESS;
-    int32_t bytes = 0;
     uint8_t write_data[GENERIC_IMU_DEVICE_CMD_SIZE] = {0};
 
     /* Prepare command */
