@@ -262,7 +262,6 @@ void GENERIC_IMU_ProcessCommandPacket(void)
 */
 void GENERIC_IMU_ProcessGroundCommand(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -346,7 +345,6 @@ void GENERIC_IMU_ProcessGroundCommand(void)
 */
 void GENERIC_IMU_ProcessTelemetryRequest(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -458,8 +456,6 @@ void GENERIC_IMU_ResetCounters(void)
 */
 void GENERIC_IMU_Enable(void)
 {
-    int32 status = OS_SUCCESS;
-
     /* Check that device is disabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_DISABLED)
     {
@@ -481,8 +477,6 @@ void GENERIC_IMU_Enable(void)
 */
 void GENERIC_IMU_Disable(void)
 {
-    int32 status = OS_SUCCESS;
-
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
@@ -521,7 +515,7 @@ int32 GENERIC_IMU_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_lengt
         CFE_MSG_GetFcnCode(msg, &cmd_code);
 
         CFE_EVS_SendEvent(GENERIC_IMU_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d",
+           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %ld, Expected = %d",
               CFE_SB_MsgIdToValue(msg_id), cmd_code, actual_length, expected_length);
 
         status = OS_ERROR;
