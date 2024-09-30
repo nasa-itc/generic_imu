@@ -9,7 +9,7 @@
 #ifndef _GENERIC_IMU_MSG_H_
 #define _GENERIC_IMU_MSG_H_
 
-// #include "cfe.h"
+#include "cfe.h"
 #include "generic_imu_device.h"
 
 
@@ -38,7 +38,7 @@
 typedef struct
 {
     /* Every command requires a header used to identify it */
-    // CFE_MSG_CommandHeader_t CmdHeader;
+    CFE_MSG_CommandHeader_t CmdHeader;
 
 } GENERIC_IMU_NoArgs_cmd_t;
 
@@ -48,9 +48,8 @@ typedef struct
 */
 typedef struct
 {
-    // CFE_MSG_CommandHeader_t CmdHeader;
-    // uint32   DeviceCfg;
-    uint32_t   DeviceCfg;
+    CFE_MSG_CommandHeader_t CmdHeader;
+    uint32   DeviceCfg;
 
 } GENERIC_IMU_Config_cmd_t;
 
@@ -60,7 +59,7 @@ typedef struct
 */
 typedef struct 
 {
-    // CFE_MSG_TelemetryHeader_t TlmHeader;
+    CFE_MSG_TelemetryHeader_t TlmHeader;
     GENERIC_IMU_Device_Data_tlm_t Generic_imu;
 
 } __attribute__((packed)) GENERIC_IMU_Device_tlm_t;
@@ -72,17 +71,12 @@ typedef struct
 */
 typedef struct 
 {
-    // CFE_MSG_TelemetryHeader_t TlmHeader;
-    // uint8   CommandErrorCount;
-    // uint8   CommandCount;
-    // uint8   DeviceErrorCount;
-    // uint8   DeviceCount;
-    // uint8   DeviceEnabled;
-    uint8_t   CommandErrorCount;
-    uint8_t   CommandCount;
-    uint8_t   DeviceErrorCount;
-    uint8_t   DeviceCount;
-    uint8_t   DeviceEnabled;
+    CFE_MSG_TelemetryHeader_t TlmHeader;
+    uint8   CommandErrorCount;
+    uint8   CommandCount;
+    uint8   DeviceErrorCount;
+    uint8   DeviceCount;
+    uint8   DeviceEnabled;
     GENERIC_IMU_Device_HK_tlm_t DeviceHK;
 
 } __attribute__((packed)) GENERIC_IMU_Hk_tlm_t;

@@ -48,7 +48,7 @@ typedef struct
 */
 typedef struct
 {
-    // uint8_t     CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
+    uint8_t     CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
     uint8_t     msg_type;
     uint8_t     cmd_id;
     uint8_t     src_mask;
