@@ -11,7 +11,7 @@
 /*
 ** Include Files
 */
-#include "cfe.h"
+// #include "cfe.h" //commented for fprime
 #include "generic_imu_device.h"
 #include "generic_imu_events.h"
 #include "generic_imu_platform_cfg.h"
@@ -52,14 +52,16 @@ typedef struct
     /*
     ** Operational data  - not reported in housekeeping
     */
-    CFE_MSG_Message_t * MsgPtr;             /* Pointer to msg received on software bus */
-    CFE_SB_PipeId_t CmdPipe;            /* Pipe Id for HK command pipe */
-    uint32 RunStatus;                   /* App run status for controlling the application state */
+    // CFE_MSG_Message_t * MsgPtr;             /* Pointer to msg received on software bus */
+    // CFE_SB_PipeId_t CmdPipe;            /* Pipe Id for HK command pipe */
+    // uint32 RunStatus;                   /* App run status for controlling the application state */
+    uint32_t RunStatus;
 
     /*
 	** Device data 
 	*/
-	uint32 DeviceID;		            /* Device ID provided by CFS on initialization */
+	// uint32 DeviceID;		            /* Device ID provided by CFS on initialization */
+    uint32_t DeviceID;
     GENERIC_IMU_Device_tlm_t DevicePkt;      /* Device specific data packet */
 
     /* 
@@ -85,7 +87,8 @@ extern GENERIC_IMU_AppData_t GENERIC_IMU_AppData; /* GENERIC_IMU App Data */
 **       functions are not called from any other source module.
 */
 void  IMU_AppMain(void);
-int32 GENERIC_IMU_AppInit(void);
+// int32 GENERIC_IMU_AppInit(void);
+int32_t GENERIC_IMU_AppInit(void);
 void  GENERIC_IMU_ProcessCommandPacket(void);
 void  GENERIC_IMU_ProcessGroundCommand(void);
 void  GENERIC_IMU_ProcessTelemetryRequest(void);
@@ -94,6 +97,6 @@ void  GENERIC_IMU_ReportDeviceTelemetry(void);
 void  GENERIC_IMU_ResetCounters(void);
 void  GENERIC_IMU_Enable(void);
 void  GENERIC_IMU_Disable(void);
-int32 GENERIC_IMU_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length);
+// int32 GENERIC_IMU_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length);
 
 #endif /* _GENERIC_IMU_APP_H_ */
