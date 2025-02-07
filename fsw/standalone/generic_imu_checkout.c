@@ -1,5 +1,5 @@
 /*******************************************************************************
-** File: generic_imu_checkout.c
+** File: generic_IMU_checkout.c
 **
 ** Purpose:
 **   This checkout can be run without cFS and is used to quickly develop and 
@@ -10,14 +10,14 @@
 /*
 ** Include Files
 */
-#include "generic_imu_checkout.h"
+#include "generic_IMU_checkout.h"
 
 /*
 ** Global Variables
 */
-uart_info_t Generic_imuUart;
-GENERIC_imu_Device_HK_tlm_t Generic_imuHK;
-GENERIC_imu_Device_Data_tlm_t Generic_imuData;
+can_info_t Generic_IMUcan;
+GENERIC_IMU_Device_HK_tlm_t Generic_IMUHK;
+GENERIC_IMU_Device_Data_tlm_t Generic_IMUData;
 
 /*
 ** Component Functions
@@ -32,7 +32,7 @@ void print_help(void)
         "  n                                - ^                               \n"
         "hk                                 - Request device housekeeping     \n"
         "  h                                - ^                               \n"
-        "generic_imu                             - Request generic_imu data             \n"
+        "generic_IMU                        - Request generic_IMU data        \n"
         "  s                                - ^                               \n"
         "cfg #                              - Send configuration #            \n"
         "  c #                              - ^                               \n"
@@ -74,7 +74,7 @@ int get_command(const char* str)
     {
         status = CMD_HK;
     }
-    else if(strcmp(lcmd, "generic_imu") == 0) 
+    else if(strcmp(lcmd, "generic_IMU") == 0) 
     {
         status = CMD_GENERIC_imu;
     }
@@ -114,7 +114,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
         case CMD_NOOP:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = GENERIC_imu_CommandDevice(&Generic_imuUart, GENERIC_imu_DEVICE_NOOP_CMD, 0);
+                status = GENERIC_IMU_CommandDevice(&Generic_IMUcan, GENERIC_IMU_DEVICE_NOOP_CMD);
                 if (status == OS_SUCCESS)
                 {
                     OS_printf("NOOP command success\n");
@@ -129,14 +129,14 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
         case CMD_HK:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = GENERIC_imu_RequestHK(&Generic_imuUart, &Generic_imuHK);
+                status = GENERIC_IMU_RequestHK(&Generic_IMUcan, &Generic_IMUHK);
                 if (status == OS_SUCCESS)
                 {
-                    OS_printf("GENERIC_imu_RequestHK command success\n");
+                    OS_printf("GENERIC_IMU_RequestHK command success\n");
                 }
                 else
                 {
-                    OS_printf("GENERIC_imu_RequestHK command failed!\n");
+                    OS_printf("GENERIC_IMU_RequestHK command failed!\n");
                 }
             }
             break;
@@ -144,34 +144,17 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
         case CMD_GENERIC_imu:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = GENERIC_imu_RequestData(&Generic_imuUart, &Generic_imuData);
+                status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);
                 if (status == OS_SUCCESS)
                 {
-                    OS_printf("GENERIC_imu_RequestData command success\n");
+                    OS_printf("GENERIC_IMU_RequestData command success\n");
                 }
                 else
                 {
-                    OS_printf("GENERIC_imu_RequestData command failed!\n");
+                    OS_printf("GENERIC_IMU_RequestData command failed!\n");
                 }
             }
             break;
-
-        case CMD_CFG:
-            if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
-            {
-                config = atoi(tokens[0]);
-                status = GENERIC_imu_CommandDevice(&Generic_imuUart, GENERIC_imu_DEVICE_CFG_CMD, config);
-                if (status == OS_SUCCESS)
-                {
-                    OS_printf("Configuration command success with value %u\n", config);
-                }
-                else
-                {
-                    OS_printf("Configuration command failed!\n");
-                }
-            }
-            break;
-        
         default: 
             OS_printf("Invalid command format, type 'help' for more info\n");
             break;
@@ -196,18 +179,36 @@ int main(int argc, char *argv[])
     #endif
 
     /* Open device specific protocols */
-    Generic_imuUart.deviceString = GENERIC_imu_CFG_STRING;
-    Generic_imuUart.handle = GENERIC_imu_CFG_HANDLE;
-    Generic_imuUart.isOpen = PORT_CLOSED;
-    Generic_imuUart.baud = GENERIC_imu_CFG_BAUDRATE_HZ;
-    status = uart_init_port(&Generic_imuUart);
+    Generic_IMUcan.handle = GENERIC_IMU_CFG_HANDLE;
+    Generic_IMUcan.isUp = CAN_INTERFACE_DOWN;
+    Generic_IMUcan.loopback = false;
+    Generic_IMUcan.listenOnly = false;
+    Generic_IMUcan.tripleSampling = false;
+    Generic_IMUcan.oneShot = false;
+    Generic_IMUcan.berrReporting = false;
+    Generic_IMUcan.fd = false;
+    Generic_IMUcan.presumeAck = false;
+    Generic_IMUcan.bitrate = GENERIC_IMU_CFG_CAN_BITRATE;
+    Generic_IMUcan.second_timeout = GENERIC_IMU_CFG_CAN_TIMEOUT;
+    Generic_IMUcan.microsecond_timeout = GENERIC_IMU_CFG_CAN_MS_TIMEOUT;
+    Generic_IMUcan.xfer_us_delay = GENERIC_IMU_CFG_CAN_XFER_US;
+
+    status = can_init_dev(&Generic_IMUcan);
+
+
+
+    // Generic_IMUcan.deviceString = GENERIC_IMU_CFG_STRING;
+    // Generic_IMUcan.handle = GENERIC_IMU_CFG_HANDLE;
+    // Generic_IMUcan.isOpen = PORT_CLOSED;
+    // Generic_IMUcan.baud = GENERIC_IMU_CFG_BAUDRATE_HZ;
+
     if (status == OS_SUCCESS)
     {
-        printf("UART device %s configured with baudrate %d \n", Generic_imuUart.deviceString, Generic_imuUart.baud);
+        OS_printf("GENERIC_IMU: CAN port initialization success %d", status);
     }
     else
     {
-        printf("UART device %s failed to initialize! \n", Generic_imuUart.deviceString);
+        OS_printf("GENERIC_IMU: CAN port initialization success %d", status);
         run_status = OS_ERROR;
     }
 
@@ -248,13 +249,13 @@ int main(int argc, char *argv[])
     }
 
     // Close the device 
-    uart_close_port(&Generic_imuUart);
+    can_close_device(&Generic_IMUcan);
 
     #ifdef _NOS_ENGINE_LINK_
         nos_destroy_link();
     #endif
 
-    OS_printf("Cleanly exiting generic_imu application...\n\n"); 
+    OS_printf("Cleanly exiting generic_IMU application...\n\n"); 
     return 1;
 }
 

@@ -26,7 +26,7 @@ endif()
 
 include_directories("./")
 include_directories("../cfs/platform_inc")
-include_directories("../cfs/src")
+include_directories("../standalone")
 include_directories("../shared")
 include_directories("../../../../fsw/apps/hwlib/fsw/public_inc")
 
