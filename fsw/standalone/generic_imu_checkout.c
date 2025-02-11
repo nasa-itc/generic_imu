@@ -132,6 +132,8 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
                 status = GENERIC_IMU_RequestHK(&Generic_IMUcan, &Generic_IMUHK);
                 if (status == OS_SUCCESS)
                 {
+                    OS_printf("HK DeviceCounter = %u\n",Generic_IMUHK.DeviceCounter);
+                    OS_printf("HK DeviceStatus = %u\n",Generic_IMUHK.DeviceStatus);
                     OS_printf("GENERIC_IMU_RequestHK command success\n");
                 }
                 else
@@ -146,7 +148,16 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
             {
                 status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);
                 if (status == OS_SUCCESS)
-                {
+                {                
+                    OS_printf("X_Data Linear Acceleration = %f\n",Generic_IMUData.X_Data.LinearAcc);
+                    OS_printf("X_Data Angular Acceleration = %f\n",Generic_IMUData.X_Data.AngularAcc);
+
+                    OS_printf("Y_Data Linear Acceleration = %f\n",Generic_IMUData.Y_Data.LinearAcc);
+                    OS_printf("Y_Data Angular Acceleration = %f\n",Generic_IMUData.Y_Data.AngularAcc);
+
+                    OS_printf("Z_Data Linear Acceleration = %f\n",Generic_IMUData.Z_Data.LinearAcc);
+                    OS_printf("Z_Data Angular Acceleration = %f\n",Generic_IMUData.Z_Data.AngularAcc);
+
                     OS_printf("GENERIC_IMU_RequestData command success\n");
                 }
                 else
