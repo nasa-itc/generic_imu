@@ -14,4 +14,5 @@ include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 aux_source_directory(src APP_SRC_FILES)
 
 # Create the app module
-add_cfe_app(generic_imu ${APP_SRC_FILES})
+add_cfe_app(generic_imu ${APP_SRC_FILES}
+            ../shared/generic_imu_device.c)
