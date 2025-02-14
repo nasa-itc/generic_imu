@@ -10,7 +10,7 @@
 /*
 ** Include Files
 */
-#include "generic_IMU_checkout.h"
+#include "generic_imu_checkout.h"
 
 /*
 ** Global Variables
