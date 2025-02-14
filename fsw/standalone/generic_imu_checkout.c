@@ -32,10 +32,8 @@ void print_help(void)
         "  n                                - ^                               \n"
         "hk                                 - Request device housekeeping     \n"
         "  h                                - ^                               \n"
-        "generic_IMU                        - Request generic_IMU data        \n"
-        "  s                                - ^                               \n"
-        "cfg #                              - Send configuration #            \n"
-        "  c #                              - ^                               \n"
+        "generic_imu                        - Request generic_IMU data        \n"
+        "  i                                - ^                               \n"
         "\n"
     );
 }
@@ -74,21 +72,13 @@ int get_command(const char* str)
     {
         status = CMD_HK;
     }
-    else if(strcmp(lcmd, "generic_IMU") == 0) 
+    else if(strcmp(lcmd, "generic_imu") == 0) 
     {
-        status = CMD_GENERIC_imu;
+        status = CMD_GENERIC_IMU;
     }
-    else if(strcmp(lcmd, "s") == 0) 
+    else if(strcmp(lcmd, "i") == 0) 
     {
-        status = CMD_GENERIC_imu;
-    }
-    else if(strcmp(lcmd, "cfg") == 0) 
-    {
-        status = CMD_CFG;
-    }
-    else if(strcmp(lcmd, "c") == 0) 
-    {
-        status = CMD_CFG;
+        status = CMD_GENERIC_IMU;
     }
     return status;
 }
@@ -98,7 +88,6 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
 {
     int32_t status = OS_SUCCESS;
     int32_t exit_status = OS_SUCCESS;
-    uint32_t config;
 
     /* Process command */
     switch(cc) 
@@ -143,7 +132,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
             }
             break;
 
-        case CMD_GENERIC_imu:
+        case CMD_GENERIC_IMU:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
                 status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);
