@@ -2,11 +2,11 @@
 ** File: generic_imu_checkout.h
 **
 ** Purpose:
-**   This is the header file for the GENERIC_imu checkout.
+**   This is the header file for the GENERIC_IMU checkout.
 **
 *******************************************************************************/
-#ifndef _GENERIC_imu_CHECKOUT_H_
-#define _GENERIC_imu_CHECKOUT_H_
+#ifndef _GENERIC_IMU_CHECKOUT_H_
+#define _GENERIC_IMU_CHECKOUT_H_
 
 /*
 ** Includes
@@ -63,4 +63,4 @@ int  main(int argc, char *argv[]);
 int check_number_arguments(int actual, int expected);
 void to_lower(char* str);
 
-#endif /* _GENERIC_imu_CHECKOUT_H_ */
+#endif /* _GENERIC_IMU_CHECKOUT_H_ */

@@ -1,5 +1,5 @@
 /*******************************************************************************
-** File: generic_IMU_checkout.c
+** File: generic_imu_checkout.c
 **
 ** Purpose:
 **   This checkout can be run without cFS and is used to quickly develop and 
@@ -32,7 +32,7 @@ void print_help(void)
         "  n                                - ^                               \n"
         "hk                                 - Request device housekeeping     \n"
         "  h                                - ^                               \n"
-        "generic_imu                        - Request generic_IMU data        \n"
+        "generic_imu                        - Request generic_imu data        \n"
         "  i                                - ^                               \n"
         "\n"
     );
@@ -195,13 +195,6 @@ int main(int argc, char *argv[])
 
     status = can_init_dev(&Generic_IMUcan);
 
-
-
-    // Generic_IMUcan.deviceString = GENERIC_IMU_CFG_STRING;
-    // Generic_IMUcan.handle = GENERIC_IMU_CFG_HANDLE;
-    // Generic_IMUcan.isOpen = PORT_CLOSED;
-    // Generic_IMUcan.baud = GENERIC_IMU_CFG_BAUDRATE_HZ;
-
     if (status == OS_SUCCESS)
     {
         OS_printf("GENERIC_IMU: CAN port initialization success %d", status);
@@ -255,7 +248,7 @@ int main(int argc, char *argv[])
         nos_destroy_link();
     #endif
 
-    OS_printf("Cleanly exiting generic_IMU application...\n\n"); 
+    OS_printf("Cleanly exiting generic_imu application...\n\n"); 
     return 1;
 }
 
