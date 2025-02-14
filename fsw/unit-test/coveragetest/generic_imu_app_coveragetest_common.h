@@ -24,8 +24,8 @@
  * Common definitions for all generic_imu_app coverage tests
  */
 
-#ifndef GENERIC_imu_APP_COVERAGETEST_COMMON_H
-#define GENERIC_imu_APP_COVERAGETEST_COMMON_H
+#ifndef GENERIC_IMU_APP_COVERAGETEST_COMMON_H
+#define GENERIC_IMU_APP_COVERAGETEST_COMMON_H
 
 /*
  * Includes
@@ -64,4 +64,4 @@ void Generic_imu_UT_Setup(void);
  */
 void Generic_imu_UT_TearDown(void);
 
-#endif /* GENERIC_imu_APP_COVERAGETEST_COMMON_H */
+#endif /* GENERIC_IMU_APP_COVERAGETEST_COMMON_H */

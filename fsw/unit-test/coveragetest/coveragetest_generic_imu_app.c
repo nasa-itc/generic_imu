@@ -22,11 +22,11 @@
 ** File: coveragetest_generic_imu_app.c
 **
 ** Purpose:
-** Coverage Unit Test cases for the GENERIC_imu Application
+** Coverage Unit Test cases for the GENERIC_IMU Application
 **
 ** Notes:
 ** This implements various test cases to exercise all code
-** paths through all functions defined in the GENERIC_imu application.
+** paths through all functions defined in the GENERIC_IMU application.
 **
 ** It is primarily focused at providing examples of the various
 ** stub configurations, hook functions, and wrapper calls that
@@ -41,7 +41,7 @@
 #include "generic_imu_app_coveragetest_common.h"
 #include "ut_generic_imu_app.h"
 
-/* to get the GENERIC_imu_LIB_Function() declaration */
+/* to get the GENERIC_IMU_LIB_Function() declaration */
 
 typedef struct
 {
@@ -130,26 +130,26 @@ static void UT_CheckEvent_Setup(UT_CheckEvent_t *Evt, uint16 ExpectedEvent, cons
 **********************************************************************************
 */
 
-void Test_GENERIC_imu_AppMain(void)
+void Test_GENERIC_IMU_AppMain(void)
 {
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
 
     /*
      * Test Case For:
-     * void GENERIC_imu_AppMain( void )
+     * void GENERIC_IMU_AppMain( void )
      */
 
     UT_CheckEvent_t EventTest;
 
     /*
-     * GENERIC_imu_AppMain does not return a value,
+     * GENERIC_IMU_AppMain does not return a value,
      * but it has several internal decision points
      * that need to be exercised here.
      *
      * First call it in "nominal" mode where all
      * dependent calls should be successful by default.
      */
-    GENERIC_imu_AppMain();
+    GENERIC_IMU_AppMain();
 
     /*
      * Confirm that CFE_ES_ExitApp() was called at the end of execution
@@ -158,7 +158,7 @@ void Test_GENERIC_imu_AppMain(void)
 
     /*
      * Now set up individual cases for each of the error paths.
-     * The first is for GENERIC_imu_AppInit().  As this is in the same
+     * The first is for GENERIC_IMU_AppInit().  As this is in the same
      * code unit, it is not a stub where the return code can be
      * easily set.  In order to get this to fail, an underlying
      * call needs to fail, and the error gets propagated through.
@@ -171,9 +171,9 @@ void Test_GENERIC_imu_AppMain(void)
      * Just call the function again.  It does not return
      * the value, so there is nothing to test for here directly.
      * However, it should show up in the coverage report that
-     * the GENERIC_imu_AppInit() failure path was taken.
+     * the GENERIC_IMU_AppInit() failure path was taken.
      */
-    GENERIC_imu_AppMain();
+    GENERIC_IMU_AppMain();
 
     /*
      * This can validate that the internal "RunStatus" was
@@ -183,9 +183,9 @@ void Test_GENERIC_imu_AppMain(void)
      * when asserting on conditions, so if/when it fails, the
      * log will show what the incorrect value was.
      */
-    UtAssert_True(GENERIC_imu_AppData.RunStatus == CFE_ES_RunStatus_APP_ERROR,
-                  "GENERIC_imu_AppData.RunStatus (%lu) == CFE_ES_RunStatus_APP_ERROR",
-                  (unsigned long)GENERIC_imu_AppData.RunStatus);
+    UtAssert_True(GENERIC_IMU_AppData.RunStatus == CFE_ES_RunStatus_APP_ERROR,
+                  "GENERIC_IMU_AppData.RunStatus (%lu) == CFE_ES_RunStatus_APP_ERROR",
+                  (unsigned long)GENERIC_IMU_AppData.RunStatus);
 
     /*
      * Note that CFE_ES_RunLoop returns a boolean value,
@@ -204,7 +204,7 @@ void Test_GENERIC_imu_AppMain(void)
     /*
      * Invoke again
      */
-    GENERIC_imu_AppMain();
+    GENERIC_IMU_AppMain();
 
     /*
      * Confirm that CFE_SB_ReceiveBuffer() (inside the loop) was called
@@ -218,59 +218,59 @@ void Test_GENERIC_imu_AppMain(void)
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RunLoop), 1, true);
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 1, CFE_SB_PIPE_RD_ERR);
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_PIPE_ERR_EID, "GENERIC_imu: SB Pipe Read Error = %d");
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_PIPE_ERR_EID, "GENERIC_IMU: SB Pipe Read Error = %d");
 
     /*
      * Invoke again
      */
-    GENERIC_imu_AppMain();
+    GENERIC_IMU_AppMain();
 
     /*
      * Confirm that the event was generated
      */
-    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_imu_PIPE_ERR_EID generated (%u)",
+    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_IMU_PIPE_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
 
-void Test_GENERIC_imu_AppInit(void)
+void Test_GENERIC_IMU_AppInit(void)
 {
     /*
      * Test Case For:
-     * int32 GENERIC_imu_AppInit( void )
+     * int32 GENERIC_IMU_AppInit( void )
      */
 
     /* nominal case should return CFE_SUCCESS */
-    UT_TEST_FUNCTION_RC(GENERIC_imu_AppInit(), CFE_SUCCESS);
+    UT_TEST_FUNCTION_RC(GENERIC_IMU_AppInit(), CFE_SUCCESS);
 
     /* trigger a failure for each of the sub-calls,
      * and confirm a write to syslog for each.
      * Note that this count accumulates, because the status
      * is _not_ reset between these test cases. */
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, CFE_EVS_INVALID_PARAMETER);
-    UT_TEST_FUNCTION_RC(GENERIC_imu_AppInit(), CFE_EVS_INVALID_PARAMETER);
+    UT_TEST_FUNCTION_RC(GENERIC_IMU_AppInit(), CFE_EVS_INVALID_PARAMETER);
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1, "CFE_ES_WriteToSysLog() called");
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_CreatePipe), 1, CFE_SB_BAD_ARGUMENT);
-    UT_TEST_FUNCTION_RC(GENERIC_imu_AppInit(), CFE_SB_BAD_ARGUMENT);
+    UT_TEST_FUNCTION_RC(GENERIC_IMU_AppInit(), CFE_SB_BAD_ARGUMENT);
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, CFE_SB_BAD_ARGUMENT);
-    UT_TEST_FUNCTION_RC(GENERIC_imu_AppInit(), CFE_SB_BAD_ARGUMENT);
+    UT_TEST_FUNCTION_RC(GENERIC_IMU_AppInit(), CFE_SB_BAD_ARGUMENT);
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, CFE_SB_BAD_ARGUMENT);
-    UT_TEST_FUNCTION_RC(GENERIC_imu_AppInit(), CFE_SB_BAD_ARGUMENT);
+    UT_TEST_FUNCTION_RC(GENERIC_IMU_AppInit(), CFE_SB_BAD_ARGUMENT);
 }
 
-void Test_GENERIC_imu_ProcessCommandPacket(void)
+void Test_GENERIC_IMU_ProcessCommandPacket(void)
 {
     /*
      * Test Case For:
-     * void GENERIC_imu_ProcessCommandPacket
+     * void GENERIC_IMU_ProcessCommandPacket
      */
     /* a buffer large enough for any command message */
     union
     {
         CFE_SB_Buffer_t      SBBuf;
-        GENERIC_imu_NoArgs_cmd_t  Noop;
+        GENERIC_IMU_NoArgs_cmd_t  Noop;
     } TestMsg;
     CFE_SB_MsgId_t    TestMsgId;
     CFE_MSG_FcnCode_t FcnCode;
@@ -278,39 +278,39 @@ void Test_GENERIC_imu_ProcessCommandPacket(void)
     UT_CheckEvent_t   EventTest;
 
     memset(&TestMsg, 0, sizeof(TestMsg));
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_PROCESS_CMD_ERR_EID, NULL);
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_PROCESS_CMD_ERR_EID, NULL);
 
     /*
      * The CFE_MSG_GetMsgId() stub uses a data buffer to hold the
      * message ID values to return.
      */
-    TestMsgId = CFE_SB_ValueToMsgId(GENERIC_imu_CMD_MID);
-    FcnCode   = GENERIC_imu_NOOP_CC;
+    TestMsgId = CFE_SB_ValueToMsgId(GENERIC_IMU_CMD_MID);
+    FcnCode   = GENERIC_IMU_NOOP_CC;
     MsgSize   = sizeof(TestMsg.Noop);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
-    GENERIC_imu_ProcessCommandPacket();
-    UtAssert_True(EventTest.MatchCount == 0, "GENERIC_imu_CMD_ERR_EID not generated (%u)",
+    GENERIC_IMU_ProcessCommandPacket();
+    UtAssert_True(EventTest.MatchCount == 0, "GENERIC_IMU_CMD_ERR_EID not generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* invalid message id */
     TestMsgId = CFE_SB_INVALID_MSG_ID;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    GENERIC_imu_ProcessCommandPacket();
-    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_imu_CMD_ERR_EID generated (%u)",
+    GENERIC_IMU_ProcessCommandPacket();
+    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_IMU_CMD_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
 
-void Test_GENERIC_imu_ProcessGroundCommand(void)
+void Test_GENERIC_IMU_ProcessGroundCommand(void)
 {
     /*
      * Test Case For:
-     * void GENERIC_imu_ProcessGroundCommand
+     * void GENERIC_IMU_ProcessGroundCommand
      */
-    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(GENERIC_imu_CMD_MID);
+    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(GENERIC_IMU_CMD_MID);
     CFE_MSG_FcnCode_t FcnCode;
     size_t            Size;
 
@@ -318,8 +318,8 @@ void Test_GENERIC_imu_ProcessGroundCommand(void)
     union
     {
         CFE_SB_Buffer_t           SBBuf;
-        GENERIC_imu_NoArgs_cmd_t       Noop;
-        GENERIC_imu_NoArgs_cmd_t       Reset;
+        GENERIC_IMU_NoArgs_cmd_t       Noop;
+        GENERIC_IMU_NoArgs_cmd_t       Reset;
     } TestMsg;
     UT_CheckEvent_t EventTest;
 
@@ -335,25 +335,25 @@ void Test_GENERIC_imu_ProcessGroundCommand(void)
      */
 
     /* test dispatch of NOOP */
-    FcnCode = GENERIC_imu_NOOP_CC;
+    FcnCode = GENERIC_IMU_NOOP_CC;
     Size    = sizeof(TestMsg.Noop);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_CMD_NOOP_INF_EID, NULL);
-    GENERIC_imu_ProcessGroundCommand();
-    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_imu_CMD_NOOP_INF_EID generated (%u)",
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_CMD_NOOP_INF_EID, NULL);
+    GENERIC_IMU_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_IMU_CMD_NOOP_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of RESET */
-    FcnCode = GENERIC_imu_RESET_COUNTERS_CC;
+    FcnCode = GENERIC_IMU_RESET_COUNTERS_CC;
     Size    = sizeof(TestMsg.Reset);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_CMD_RESET_INF_EID, NULL);
-    GENERIC_imu_ProcessGroundCommand();
-    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_imu_CMD_RESET_INF_EID generated (%u)",
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_CMD_RESET_INF_EID, NULL);
+    GENERIC_IMU_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_IMU_CMD_RESET_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test an invalid CC */
@@ -361,23 +361,23 @@ void Test_GENERIC_imu_ProcessGroundCommand(void)
     Size    = sizeof(TestMsg.Noop);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_CMD_ERR_EID, NULL);
-    GENERIC_imu_ProcessGroundCommand();
-    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_imu_CMD_ERR_EID generated (%u)",
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_CMD_ERR_EID, NULL);
+    GENERIC_IMU_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_IMU_CMD_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
 
-void Test_GENERIC_imu_ReportHousekeeping(void)
+void Test_GENERIC_IMU_ReportHousekeeping(void)
 {
     /*
      * Test Case For:
-     * void GENERIC_imu_ReportHousekeeping()
+     * void GENERIC_IMU_ReportHousekeeping()
      */
     CFE_MSG_Message_t *MsgSend;
     CFE_MSG_Message_t *MsgTimestamp;
-    CFE_SB_MsgId_t     MsgId = CFE_SB_ValueToMsgId(GENERIC_imu_REQ_HK_TLM);
+    CFE_SB_MsgId_t     MsgId = CFE_SB_ValueToMsgId(GENERIC_IMU_REQ_HK_TLM);
 
-    /* Set message id to return so GENERIC_imu_Housekeeping will be called */
+    /* Set message id to return so GENERIC_IMU_Housekeeping will be called */
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
 
     /* Set up to capture send message address */
@@ -387,41 +387,41 @@ void Test_GENERIC_imu_ReportHousekeeping(void)
     UT_SetDataBuffer(UT_KEY(CFE_SB_TimeStampMsg), &MsgTimestamp, sizeof(MsgTimestamp), false);
 
     /* Call unit under test, NULL pointer confirms command access is through APIs */
-    GENERIC_imu_ReportHousekeeping();
+    GENERIC_IMU_ReportHousekeeping();
 
     /* Confirm message sent*/
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)) == 1, "CFE_SB_TransmitMsg() called once");
-    UtAssert_True(MsgSend == &GENERIC_imu_AppData.HkTelemetryPkt.TlmHeader.Msg, "CFE_SB_TransmitMsg() address matches expected");
+    UtAssert_True(MsgSend == &GENERIC_IMU_AppData.HkTelemetryPkt.TlmHeader.Msg, "CFE_SB_TransmitMsg() address matches expected");
 
     /* Confirm timestamp msg address */
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_SB_TimeStampMsg)) == 1, "CFE_SB_TimeStampMsg() called once");
-    UtAssert_True(MsgTimestamp == &GENERIC_imu_AppData.HkTelemetryPkt.TlmHeader.Msg,
+    UtAssert_True(MsgTimestamp == &GENERIC_IMU_AppData.HkTelemetryPkt.TlmHeader.Msg,
                   "CFE_SB_TimeStampMsg() address matches expected");
 }
 
-void Test_GENERIC_imu_VerifyCmdLength(void)
+void Test_GENERIC_IMU_VerifyCmdLength(void)
 {
     /*
      * Test Case For:
-     * bool GENERIC_imu_VerifyCmdLength
+     * bool GENERIC_IMU_VerifyCmdLength
      */
     UT_CheckEvent_t   EventTest;
     size_t            size    = 1;
     CFE_MSG_FcnCode_t fcncode = 2;
-    CFE_SB_MsgId_t    msgid   = CFE_SB_ValueToMsgId(GENERIC_imu_CMD_MID);
+    CFE_SB_MsgId_t    msgid   = CFE_SB_ValueToMsgId(GENERIC_IMU_CMD_MID);
 
     /*
      * test a match case
      */
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_LEN_ERR_EID, NULL);
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_LEN_ERR_EID, NULL);
 
-    GENERIC_imu_VerifyCmdLength(NULL, size);
+    GENERIC_IMU_VerifyCmdLength(NULL, size);
 
     /*
      * Confirm that the event was NOT generated
      */
-    UtAssert_True(EventTest.MatchCount == 0, "GENERIC_imu_LEN_ERR_EID NOT generated (%u)",
+    UtAssert_True(EventTest.MatchCount == 0, "GENERIC_IMU_LEN_ERR_EID NOT generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /*
@@ -430,13 +430,13 @@ void Test_GENERIC_imu_VerifyCmdLength(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &msgid, sizeof(msgid), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &fcncode, sizeof(fcncode), false);
-    UT_CheckEvent_Setup(&EventTest, GENERIC_imu_LEN_ERR_EID, NULL);
-    GENERIC_imu_VerifyCmdLength(NULL, size + 1);
+    UT_CheckEvent_Setup(&EventTest, GENERIC_IMU_LEN_ERR_EID, NULL);
+    GENERIC_IMU_VerifyCmdLength(NULL, size + 1);
 
     /*
      * Confirm that the event WAS generated
      */
-    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_imu_LEN_ERR_EID generated (%u)",
+    UtAssert_True(EventTest.MatchCount == 1, "GENERIC_IMU_LEN_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
 
@@ -458,10 +458,10 @@ void Generic_imu_UT_TearDown(void) {}
  */
 void UtTest_Setup(void)
 {
-    ADD_TEST(GENERIC_imu_AppMain);
-    ADD_TEST(GENERIC_imu_AppInit);
-    ADD_TEST(GENERIC_imu_ProcessCommandPacket);
-    ADD_TEST(GENERIC_imu_ProcessGroundCommand);
-    ADD_TEST(GENERIC_imu_ReportHousekeeping);
-    ADD_TEST(GENERIC_imu_VerifyCmdLength);
+    ADD_TEST(GENERIC_IMU_AppMain);
+    ADD_TEST(GENERIC_IMU_AppInit);
+    ADD_TEST(GENERIC_IMU_ProcessCommandPacket);
+    ADD_TEST(GENERIC_IMU_ProcessGroundCommand);
+    ADD_TEST(GENERIC_IMU_ReportHousekeeping);
+    ADD_TEST(GENERIC_IMU_VerifyCmdLength);
 }

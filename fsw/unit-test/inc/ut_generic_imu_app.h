@@ -34,18 +34,18 @@
  * order to exercise or set up for off-nominal cases.
  */
 
-#ifndef UT_GENERIC_imu_APP_H
-#define UT_GENERIC_imu_APP_H
+#ifndef UT_GENERIC_IMU_APP_H
+#define UT_GENERIC_IMU_APP_H
 
 /*
  * Necessary to include these here to get the definition of the
- * "GENERIC_imu_APP_Data_t" typedef.
+ * "GENERIC_IMU_APP_Data_t" typedef.
  */
 #include "generic_imu_app.h"
 
 /*
- * Allow UT access to the global "GENERIC_imu_APP_Data" object.
+ * Allow UT access to the global "GENERIC_IMU_APP_Data" object.
  */
-//extern GENERIC_imu_AppData_t GENERIC_imu_APP_Data;
+//extern GENERIC_IMU_AppData_t GENERIC_IMU_APP_Data;
 
-#endif /* UT_GENERIC_imu_APP_H */
+#endif /* UT_GENERIC_IMU_APP_H */

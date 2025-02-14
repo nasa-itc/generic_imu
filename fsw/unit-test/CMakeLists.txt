@@ -23,6 +23,7 @@
 include_directories(${PROJECT_SOURCE_DIR}/fsw/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
+include_directories(${PROJECT_SOURCE_DIR}/fsw/shared)
 
 
 # Add a coverage test executable called "generic_imu-ALL" that 
@@ -35,8 +36,9 @@ include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 add_cfe_coverage_test(generic_imu ALL 
     "coveragetest/coveragetest_generic_imu_app.c"
     "../src/generic_imu_app.c"
-    "../src/generic_imu_device.c"
+    "../shared/generic_imu_device.c"
     "../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
+    "../../../../fsw/apps/hwlib/fsw/stubs/libcan.c"
 )
 
 # The generic_imu uses library functions provided by generic_imu_lib so must be linked
