@@ -12,6 +12,7 @@ set(generic_imu_sim_src
     src/generic_imu_hardware_model.cpp
     src/generic_imu_42_data_provider.cpp
     src/generic_imu_data_provider.cpp
+    src/generic_imu_shmem_data_provider.cpp
     src/generic_imu_data_point.cpp
 )
 

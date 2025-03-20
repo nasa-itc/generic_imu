@@ -26,6 +26,16 @@ namespace Nos3
         _generic_imu_data_is_valid = false;
     }
 
+    Generic_imuDataPoint::Generic_imuDataPoint(double gyro_x, double gyro_y, double gyro_z, double acc_x, double acc_y, double acc_z) : _not_parsed(false)
+    {
+        _gyroRates[0] = gyro_x;
+        _gyroRates[1] = gyro_y;
+        _gyroRates[2] = gyro_z;
+        _accelRates[0] = acc_x;
+        _accelRates[1] = acc_y;
+        _accelRates[2] = acc_z;
+    }
+
     void Generic_imuDataPoint::do_parsing(void) const
     {    
         try {
