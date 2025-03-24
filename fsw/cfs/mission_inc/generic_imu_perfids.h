@@ -16,7 +16,7 @@
 ** id conflict with other apps.  Performance IDs are used for cFE performance
 ** metrics.
 */
-#define GENERIC_IMU_PERF_ID          530
-#define GENERIC_IMU_DEVICE_PERF_ID   531
+#define GENERIC_IMU_PERF_ID 530
+#define GENERIC_IMU_DEVICE_PERF_ID 531
 
 #endif /* _GENERIC_IMU_PERFIDS_H_ */
