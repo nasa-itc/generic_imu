@@ -46,6 +46,6 @@
 /*
  * Allow UT access to the global "GENERIC_IMU_APP_Data" object.
  */
-//extern GENERIC_IMU_AppData_t GENERIC_IMU_APP_Data;
+// extern GENERIC_IMU_AppData_t GENERIC_IMU_APP_Data;
 
 #endif /* UT_GENERIC_IMU_APP_H */
