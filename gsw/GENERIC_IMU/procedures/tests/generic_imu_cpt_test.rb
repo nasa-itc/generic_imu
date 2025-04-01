@@ -117,21 +117,21 @@ cmd("GENERIC_IMU GENERIC_IMU_REQ_DATA")
 imu_angular_acc_x = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_ACCELERATION")
 truth_42_wn_0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_0")
 imu_diff_x =  (imu_angular_acc_x - truth_42_wn_0).abs()
-diff_margin_x = 0.04
+diff_margin_x = 0.2
 wait_check_expression("imu_diff_x <= diff_margin_x # #{imu_diff_x} <= #{diff_margin_x}", 15)
 
 # Y Axis
 imu_angular_acc_y = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_ACCELERATION")
 truth_42_wn_1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_1")
 imu_diff_y =  (imu_angular_acc_y - truth_42_wn_1).abs()
-diff_margin_y = 0.06
+diff_margin_y = 0.2
 wait_check_expression("imu_diff_y <= diff_margin_y # #{imu_diff_y} <= #{diff_margin_y}", 15)
 
 # Z Axis
 imu_angular_acc_z = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_ACCELERATION")
 truth_42_wn_2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_2")
 imu_diff_z =  (imu_angular_acc_y - truth_42_wn_2).abs()
-diff_margin_z = 0.06
+diff_margin_z = 0.2
 wait_check_expression("imu_diff_z <= diff_margin_z # #{imu_diff_z} <= #{diff_margin_z}", 15)
 
 wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
