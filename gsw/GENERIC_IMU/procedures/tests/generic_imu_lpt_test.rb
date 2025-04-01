@@ -3,107 +3,107 @@ require 'cosmos/script'
 require "cfs_lib.rb"
 #require 'math'
 
-# ##
-# ## NOOP
-# ##
-# initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_NOOP_CC")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+##
+## NOOP
+##
+initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_NOOP_CC")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## Successful Disable
-# ##
-# initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_DISABLE_CC")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'DISABLED'", 30)
+##
+## Successful Disable
+##
+initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_DISABLE_CC")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'DISABLED'", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## Failed Disable (doubled)
-# ##
-# initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_DISABLE_CC")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT > #{initial_device_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'DISABLED'", 30)
+##
+## Failed Disable (doubled)
+##
+initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_DISABLE_CC")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT > #{initial_device_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'DISABLED'", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## HK without Device
-# ##
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_REQ_HK")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+##
+## HK without Device
+##
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_REQ_HK")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## Data without Device
-# ##
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_REQ_DATA")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+##
+## Data without Device
+##
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_REQ_DATA")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## Successful Enable
-# ##
-# initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_ENABLE_CC")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
+##
+## Successful Enable
+##
+initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_ENABLE_CC")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## Failed Enable (doubled)
-# ##
-# initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_ENABLE_CC")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT > #{initial_device_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
+##
+## Failed Enable (doubled)
+##
+initial_command_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_ENABLE_CC")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT > #{initial_device_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
 
-# sleep(5)
+sleep(5)
 
-# ##
-# ## Housekeeping w/ Device
-# ##
-# initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-# initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
-# cmd("GENERIC_IMU GENERIC_IMU_REQ_HK")
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-# wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+##
+## Housekeeping w/ Device
+##
+initial_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT")
+cmd("GENERIC_IMU GENERIC_IMU_REQ_HK")
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
 
-# sleep(5)
+sleep(5)
 
 ##
 ## Data w/ Device
