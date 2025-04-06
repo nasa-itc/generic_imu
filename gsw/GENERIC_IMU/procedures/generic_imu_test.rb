@@ -1,45 +1,51 @@
 require 'cosmos'
 require 'cosmos/script'
-require 'mission_lib.rb'
+require 'generic_imu_lib.rb'
 
-class IMU_LPT < Cosmos::Test
+class GENERIC_IMU_Functional_Test < Cosmos::Test
   def setup
-    
+    safe_generic_imu()
   end
 
-  def test_lpt
-    start("tests/generic_imu_lpt_test.rb")
+  def test_application
+      start("tests/generic_imu_app_test.rb")
+  end
+
+  def test_device
+    start("tests/generic_imu_device_test.rb")
   end
 
   def teardown
-
+    safe_generic_imu()
   end
 end
 
-class IMU_CPT < Cosmos::Test
-  def setup
-      
+class GENERIC_IMU_Automated_Scenario_Test < Cosmos::Test
+  def setup 
+    safe_generic_imu()
   end
 
-  def test_cpt
-    start("tests/generic_imu_cpt_test.rb")
+  def test_AST
+      start("tests/generic_imu_ast_test.rb")
   end
 
   def teardown
-
+    safe_generic_imu()
   end
 end
 
 class Generic_imu_Test < Cosmos::TestSuite
   def initialize
       super()
-      add_test('IMU_CPT')
-      add_test('IMU_LPT')
+      add_test('GENERIC_IMU_Functional_Test')
+      add_test('GENERIC_IMU_Automated_Scenario_Test')
   end
 
   def setup
+    safe_generic_imu()
   end
   
   def teardown
+    safe_generic_imu()
   end
 end
