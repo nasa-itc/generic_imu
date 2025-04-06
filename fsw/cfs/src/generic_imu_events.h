@@ -40,7 +40,8 @@
 #define GENERIC_IMU_REQ_HK_ERR_EID     31
 
 /* Device specific telemetry event IDs */
-#define GENERIC_IMU_REQ_DATA_ERR_EID 32
+#define GENERIC_IMU_REQ_DATA_ERR_EID        32
+#define GENERIC_IMU_REQ_DATA_STATUS_ERR_EID 33
 
 /* Hardware protocol event IDs */
 #define GENERIC_IMU_CAN_INIT_ERR_EID    40

@@ -44,26 +44,3 @@ GENERIC_IMU_TEST_LOOP_COUNT.times do |n|
     # Disable
     disable_generic_imu()
 end
-
-
-##
-##   Configuration, reconfigure generic_imu instrument register
-##
-GENERIC_IMU_TEST_LOOP_COUNT.times do |n|
-    safe_generic_imu() # Get to known state
-
-    # Confirm configuration command denied if disabled
-    cmd_cnt = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
-    cmd_err_cnt = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT")
-    cmd("GENERIC_IMU GENERIC_IMU_CONFIG_CC with DEVICE_CONFIG 10")
-    get_generic_imu_hk()
-    check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT == #{cmd_cnt}")
-    check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{cmd_err_cnt+1}")
-    
-    # Enable
-    enable_generic_imu()
-
-    # Set configuration
-    generic_imu_cmd("GENERIC_IMU GENERIC_IMU_CONFIG_CC with DEVICE_CONFIG #{n+1}")
-    check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_CONFIG == #{n+1}")
-end

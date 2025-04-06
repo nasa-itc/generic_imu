@@ -275,12 +275,17 @@ void GENERIC_IMU_ProcessGroundCommand(void)
         ** NOOP Command
         */
         case GENERIC_IMU_NOOP_CC:
+
+
+
             /*
             ** First, verify the command length immediately after CC identification
             ** Note that VerifyCmdLength handles the command and command error counters
             */
             if (GENERIC_IMU_VerifyCmdLength(GENERIC_IMU_AppData.MsgPtr, sizeof(GENERIC_IMU_NoArgs_cmd_t)) == OS_SUCCESS)
             {
+                GENERIC_IMU_AppData.HkTelemetryPkt.CommandCount++;
+
                 /* Second, send EVS event on successful receipt ground commands*/
                 CFE_EVS_SendEvent(GENERIC_IMU_CMD_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
                                   "GENERIC_IMU: NOOP command received");
@@ -456,13 +461,16 @@ void GENERIC_IMU_Enable(void)
     /* Check that device is disabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_DISABLED)
     {
+        GENERIC_IMU_AppData.HkTelemetryPkt.CommandCount++;
+
         GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
         GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
         CFE_EVS_SendEvent(GENERIC_IMU_ENABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_IMU: Device enabled");
     }
     else
     {
-        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        /* Increment command error count */
+        GENERIC_IMU_AppData.HkTelemetryPkt.CommandErrorCount++;
         CFE_EVS_SendEvent(GENERIC_IMU_ENABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "GENERIC_IMU: Device enable failed, already enabled");
     }
@@ -477,13 +485,16 @@ void GENERIC_IMU_Disable(void)
     /* Check that device is enabled */
     if (GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_IMU_DEVICE_ENABLED)
     {
+        GENERIC_IMU_AppData.HkTelemetryPkt.CommandCount++;
+
         GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
         GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
         CFE_EVS_SendEvent(GENERIC_IMU_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_IMU: Device disabled");
     }
     else
     {
-        GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        /* Increment command error count */
+        GENERIC_IMU_AppData.HkTelemetryPkt.CommandErrorCount++;
         CFE_EVS_SendEvent(GENERIC_IMU_DISABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "GENERIC_IMU: Device disable failed, already disabled");
     }
@@ -501,12 +512,7 @@ int32 GENERIC_IMU_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length
     size_t            actual_length = 0;
 
     CFE_MSG_GetSize(msg, &actual_length);
-    if (expected_length == actual_length)
-    {
-        /* Increment the command counter upon receipt of an invalid command */
-        GENERIC_IMU_AppData.HkTelemetryPkt.CommandCount++;
-    }
-    else
+    if (expected_length != actual_length)
     {
         CFE_MSG_GetMsgId(msg, &msg_id);
         CFE_MSG_GetFcnCode(msg, &cmd_code);

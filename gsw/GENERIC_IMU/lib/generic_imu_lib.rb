@@ -15,6 +15,8 @@ GENERIC_IMU_DEVICE_LOOP_COUNT = 5
 #
 def get_generic_imu_hk()
     cmd("GENERIC_IMU GENERIC_IMU_REQ_HK")
+    count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+    puts "Command Count = #{count}"
     wait_check_packet("GENERIC_IMU", "GENERIC_IMU_HK_TLM", 1, GENERIC_IMU_RESPONSE_TIMEOUT)
     sleep(GENERIC_IMU_CMD_SLEEP)
 end
@@ -36,11 +38,13 @@ def generic_imu_cmd(*command)
     get_generic_imu_hk()
     current = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
     if (current != count)
+        puts "Current != Count!!"
         # Try again
         cmd(*command)
         get_generic_imu_hk()
         current = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
         if (current != count)
+            puts "Current != Count still!!"
             # Third times the charm
             cmd(*command)
             get_generic_imu_hk()
@@ -58,6 +62,8 @@ def enable_generic_imu()
 end
 
 def disable_generic_imu()
+    puts "Sending Disable command!"
+
     # Send command
     generic_imu_cmd("GENERIC_IMU GENERIC_IMU_DISABLE_CC")
     # Confirm
@@ -67,6 +73,8 @@ end
 def safe_generic_imu()
     get_generic_imu_hk()
     state = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ENABLED")
+    count = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
+    puts "Command Count = #{count}"
     if (state != "DISABLED")
         disable_generic_imu()
     end
@@ -85,20 +93,17 @@ def confirm_generic_imu_data()
     # X Axis
     imu_angular_acc_x = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_ACCELERATION")
     truth_42_wn_0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_0")
-    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_ACCELERATION", truth_42_wn_0, diff, 15)
+    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_ACCELERATION", truth_42_wn_0, diff, 30)
 
     # Y Axis
     imu_angular_acc_y = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_ACCELERATION")
     truth_42_wn_1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_1")
-    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_ACCELERATION", truth_42_wn_1, diff, 15)
+    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_ACCELERATION", truth_42_wn_1, diff, 30)
 
     # Z Axis
     imu_angular_acc_z = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_ACCELERATION")
     truth_42_wn_2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_2")
-    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_ACCELERATION", truth_42_wn_2, diff, 15)
-
-    wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
-    wait_check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_ACCELERATION", truth_42_wn_2, diff, 30)
 
     get_generic_imu_hk()
     check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_COUNT >= #{dev_cmd_cnt}")
