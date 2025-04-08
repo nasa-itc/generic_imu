@@ -37,13 +37,11 @@ def generic_imu_cmd(*command)
     get_generic_imu_hk()
     current = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
     if (current != count)
-        puts "Current != Count!!"
         # Try again
         cmd(*command)
         get_generic_imu_hk()
         current = tlm("GENERIC_IMU GENERIC_IMU_HK_TLM CMD_COUNT")
         if (current != count)
-            puts "Current != Count still!!"
             # Third times the charm
             cmd(*command)
             get_generic_imu_hk()
