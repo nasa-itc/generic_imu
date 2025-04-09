@@ -276,8 +276,6 @@ void GENERIC_IMU_ProcessGroundCommand(void)
         */
         case GENERIC_IMU_NOOP_CC:
 
-
-
             /*
             ** First, verify the command length immediately after CC identification
             ** Note that VerifyCmdLength handles the command and command error counters
