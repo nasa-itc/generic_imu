@@ -82,19 +82,19 @@ def confirm_generic_imu_data()
     # Note these checks assume default simulator configuration
 
     # X Axis
-    #imu_angular_acc_x = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_ACCELERATION")
-    truth_42_wn_1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_1")
-    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_ACCELERATION", truth_42_wn_1*(-1), GENERIC_IMU_DEVICE_DIFF)
+    #imu_angular_acc_x = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_RATE")
+    truth_42_wn_0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_0")
+    check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM X_ANGULAR_RATE", truth_42_wn_0, GENERIC_IMU_DEVICE_DIFF)
 
     # Y Axis
-    #imu_angular_acc_y = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_ACCELERATION")
-    truth_42_wn_2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_2")
-    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_ACCELERATION", truth_42_wn_2*(-1), GENERIC_IMU_DEVICE_DIFF)
+    #imu_angular_acc_y = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_RATE")
+    truth_42_wn_1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_1")
+    check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Y_ANGULAR_RATE", truth_42_wn_1, GENERIC_IMU_DEVICE_DIFF)
 
-    # # Z Axis
-    #imu_angular_acc_z = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_ACCELERATION")
-    truth_42_wn_0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_0")
-    wait_check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_ACCELERATION", truth_42_wn_0, GENERIC_IMU_DEVICE_DIFF)
+    # Z Axis
+    #imu_angular_acc_z = tlm("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_RATE")
+    truth_42_wn_2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA WN_2")
+    check_tolerance("GENERIC_IMU GENERIC_IMU_DATA_TLM Z_ANGULAR_RATE", truth_42_wn_2, GENERIC_IMU_DEVICE_DIFF)
 
     get_generic_imu_hk()
     check("GENERIC_IMU GENERIC_IMU_HK_TLM DEVICE_COUNT >= #{dev_cmd_cnt}")
