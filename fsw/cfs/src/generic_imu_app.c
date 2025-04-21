@@ -464,7 +464,7 @@ void GENERIC_IMU_Enable(void)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
             CFE_EVS_SendEvent(GENERIC_IMU_CAN_INIT_ERR_EID, CFE_EVS_EventType_ERROR,
-                            "GENERIC_IMU: CAN port initialization error %d", status);
+                              "GENERIC_IMU: CAN port initialization error %d", status);
         }
     }
     else
@@ -496,13 +496,14 @@ void GENERIC_IMU_Disable(void)
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceCount++;
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
-            CFE_EVS_SendEvent(GENERIC_IMU_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_IMU: Device disabled");
+            CFE_EVS_SendEvent(GENERIC_IMU_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "GENERIC_IMU: Device disabled");
         }
         else
         {
             GENERIC_IMU_AppData.HkTelemetryPkt.DeviceErrorCount++;
             CFE_EVS_SendEvent(GENERIC_IMU_CAN_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
-                            "GENERIC_IMU: CAN port close error %d", status);
+                              "GENERIC_IMU: CAN port close error %d", status);
         }
     }
     else
