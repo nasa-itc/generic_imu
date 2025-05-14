@@ -7,7 +7,7 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_imuDataPoint::Generic_imuDataPoint(double count): _not_parsed(false)
+    Generic_imuDataPoint::Generic_imuDataPoint(double count) : _not_parsed(false)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  Defined Constructor executed");
 
@@ -17,6 +17,17 @@ namespace Nos3
         _gyroRates[1] = count;
         _gyroRates[2] = count;
     }
+
+    Generic_imuDataPoint::Generic_imuDataPoint(double gyro[3], double accel[3]) : _not_parsed(false)
+    {
+        _gyroRates[0] = gyro[0];
+        _gyroRates[1] = gyro[1];
+        _gyroRates[2] = gyro[2];
+        _accelRates[0] = accel[0];
+        _accelRates[1] = accel[1];
+        _accelRates[2] = accel[2];
+    }
+
 
     Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
