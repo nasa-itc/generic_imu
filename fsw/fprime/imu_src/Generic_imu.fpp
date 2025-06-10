@@ -49,6 +49,7 @@ module Components {
         @ Device Error Count
         telemetry DeviceErrorCount: U32
 
+        @ Device Enabled
         telemetry DeviceEnabled: ActiveState
 
          @ Device Command Counter Parameter 
