@@ -40,7 +40,7 @@ namespace Components {
     HkTelemetryPkt.CommandErrorCount = 0;
     HkTelemetryPkt.DeviceCount = 0;
     HkTelemetryPkt.DeviceErrorCount = 0;
-    HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
+    HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
 
     Generic_IMUHK.DeviceCounter = 0;
     Generic_IMUHK.DeviceStatus = 0;
@@ -56,6 +56,10 @@ namespace Components {
         printf("I2C device 0x%02x failed to initialize! \n", Generic_IMUcan.handle);
         status = OS_ERROR;
     }
+
+    can_close_device(&Generic_IMUcan);
+
+    this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
   }
 
@@ -160,6 +164,7 @@ void Generic_imu :: NOOP_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
   HkTelemetryPkt.CommandCount++;
   this->log_ACTIVITY_HI_TELEM("NOOP SENT");
   this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
+  this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
   // Tell the fprime command system that we have completed the processing of the supplied command with OK status
   this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);

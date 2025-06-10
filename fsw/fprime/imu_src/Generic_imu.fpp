@@ -34,7 +34,7 @@ module Components {
 
         @ event with maximum length of 30 characters
         event TELEM(
-            log_info: string size 30 @< 
+            log_info: string size 40 @< 
         ) severity activity high format "Generic_imu: {}"
 
         @ Command Count
