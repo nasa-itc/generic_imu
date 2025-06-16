@@ -8,6 +8,8 @@ module Components {
         @ IMU output port
         output port IMUout: IMUDataPort
 
+        async input port updateData: Svc.Sched
+
         @ Command to Request Housekeeping
         async command REQUEST_HOUSEKEEPING(
         )
