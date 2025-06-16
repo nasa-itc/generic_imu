@@ -148,6 +148,7 @@ void Generic_imu :: REQUEST_DATA_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
   this->tlmWrite_Z_Axis_LinearAcc(Z_Axis_LinearAcc);
   this->tlmWrite_Z_Axis_AngularAcc(Z_Axis_AngularAcc);
 
+  this->IMUout_out(0, Generic_IMUData.X_Data.LinearAcc, Generic_IMUData.Y_Data.LinearAcc, Generic_IMUData.Z_Data.LinearAcc, Generic_IMUData.X_Data.AngularAcc, Generic_IMUData.Y_Data.AngularAcc, Generic_IMUData.Z_Data.AngularAcc);
   
   // Tell the fprime command system that we have completed the processing of the supplied command with OK status
   this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);

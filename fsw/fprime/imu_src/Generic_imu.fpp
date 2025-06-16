@@ -4,7 +4,9 @@ module Components {
 
         # One async command/port is required for active components
         # This should be overridden by the developers with a useful command/port
-        @ TODO
+
+        @ IMU output port
+        output port IMUout: IMUDataPort
 
         @ Command to Request Housekeeping
         async command REQUEST_HOUSEKEEPING(
