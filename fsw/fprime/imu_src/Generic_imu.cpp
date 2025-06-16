@@ -117,14 +117,6 @@ void Generic_imu :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UIN
 {
   int32_t status = OS_SUCCESS;
   status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);
-  // if (status == OS_SUCCESS)
-  // {
-  //     this->log_ACTIVITY_HI_TELEM("RequestData command success\n");
-  // }
-  // else
-  // {
-  //     this->log_ACTIVITY_HI_TELEM("RequestData command failed!\n");
-  // }
 
   this->tlmWrite_X_Axis_LinearAcc(Generic_IMUData.X_Data.LinearAcc);
   this->tlmWrite_X_Axis_AngularAcc(Generic_IMUData.X_Data.AngularAcc);
