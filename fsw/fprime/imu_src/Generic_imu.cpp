@@ -70,8 +70,6 @@ namespace Components {
     can_close_device(&Generic_IMUcan);
 
     nos_destroy_link();
-
-    OS_printf("Cleanly exiting generic_imu application...\n\n"); 
   }
 
   // ----------------------------------------------------------------------
@@ -178,7 +176,6 @@ void Generic_imu :: RESET_COUNTERS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
   HkTelemetryPkt.DeviceErrorCount = 0;
 
   this->log_ACTIVITY_HI_TELEM("Reset Counters command successful!");
-  OS_printf("Reset Counters command successful!\n");
   this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
   this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
   this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
@@ -213,24 +210,18 @@ void Generic_imu :: ENABLE_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
       {
         HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
         HkTelemetryPkt.DeviceCount++;
-
         this->log_ACTIVITY_HI_TELEM("Enable command success!");
-        OS_printf("Enable command successful!\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-
         this->log_ACTIVITY_HI_TELEM("Enable command failed to init CAN!");
-        OS_printf("Enable command failed to init CAN!\n");
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-
       this->log_ACTIVITY_HI_TELEM("Enable failed, already Enabled!");
-      OS_printf("Enable failed, already Enabled!\n");
     }
 
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
@@ -254,24 +245,18 @@ void Generic_imu :: ENABLE_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
       {
         HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
         HkTelemetryPkt.DeviceCount++;
-
         this->log_ACTIVITY_HI_TELEM("Disable command success!");
-        OS_printf("Disable command successful!\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        
         this->log_ACTIVITY_HI_TELEM("Disable command failed to close CAN!");
-        OS_printf("Disable command failed to close CAN!\n");
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-
       this->log_ACTIVITY_HI_TELEM("Disable failed, already Disabled!");
-      OS_printf("Disable failed, already Disabled!\n");
     }
 
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
