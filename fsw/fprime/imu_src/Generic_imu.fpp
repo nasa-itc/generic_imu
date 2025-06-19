@@ -10,6 +10,12 @@ module Components {
 
         @ Periodic Data IMU
         async input port updateData: Svc.Sched
+        
+        @ Component Enable State
+        enum ActiveState {
+            DISABLED @< DISABLED
+            ENABLED @< ENABLED
+        }
 
         @ Command to Request Housekeeping
         async command REQUEST_HOUSEKEEPING(
@@ -23,13 +29,37 @@ module Components {
         async command NOOP(
         )
 
+        @ Enable Cmd
+        async command ENABLE()
+
+        @ Disable Cmd
+        async command DISABLE()
+
+        @ Reset Counters Cmd
+        async command RESET_COUNTERS()
+
         @ event with maximum length of 30 characters
         event TELEM(
-            log_info: string size 30 @< 
+            log_info: string size 40 @< 
         ) severity activity high format "Generic_imu: {}"
 
+        @ Command Count
+        telemetry CommandCount: U32
+
+        @ Command Error Count
+        telemetry CommandErrorCount: U32
+
+        @ Device Count
+        telemetry DeviceCount: U32
+
+        @ Device Error Count
+        telemetry DeviceErrorCount: U32
+
+        @ Device Enabled
+        telemetry DeviceEnabled: ActiveState
+
          @ Device Command Counter Parameter 
-        telemetry DeviceCounter: U32
+        telemetry ReportedComponentCount: U32
 
          @ Device Status Parameter
         telemetry DeviceStatus: U32
