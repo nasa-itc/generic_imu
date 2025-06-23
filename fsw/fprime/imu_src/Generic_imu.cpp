@@ -40,7 +40,7 @@ namespace Components {
     HkTelemetryPkt.CommandErrorCount = 0;
     HkTelemetryPkt.DeviceCount = 0;
     HkTelemetryPkt.DeviceErrorCount = 0;
-    HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
+    HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
 
     Generic_IMUHK.DeviceCounter = 0;
     Generic_IMUHK.DeviceStatus = 0;
@@ -57,7 +57,7 @@ namespace Components {
         status = OS_ERROR;
     }
 
-    can_close_device(&Generic_IMUcan);
+    // can_close_device(&Generic_IMUcan);
 
     this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
