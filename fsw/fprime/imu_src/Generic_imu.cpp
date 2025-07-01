@@ -44,7 +44,7 @@ namespace Components {
 
     Generic_IMUHK.DeviceCounter = 0;
     Generic_IMUHK.DeviceStatus = 0;
-
+    
     status = can_init_dev(&Generic_IMUcan);
 
     if (status == OS_SUCCESS)
@@ -113,15 +113,7 @@ void Generic_imu :: REQUEST_HOUSEKEEPING_cmdHandler(FwOpcodeType opCode, U32 cmd
 void Generic_imu :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
 {
   int32_t status = OS_SUCCESS;
-  status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);
-
-  this->tlmWrite_X_Axis_LinearAcc(Generic_IMUData.X_Data.LinearAcc);
-  this->tlmWrite_X_Axis_AngularAcc(Generic_IMUData.X_Data.AngularAcc);
-  this->tlmWrite_Y_Axis_LinearAcc(Generic_IMUData.Y_Data.LinearAcc);
-  this->tlmWrite_Y_Axis_AngularAcc(Generic_IMUData.Y_Data.AngularAcc);
-  this->tlmWrite_Z_Axis_LinearAcc(Generic_IMUData.Z_Data.LinearAcc);
-  this->tlmWrite_Z_Axis_AngularAcc(Generic_IMUData.Z_Data.AngularAcc);
-
+  status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);  
   this->IMUout_out(0, Generic_IMUData.X_Data.LinearAcc, Generic_IMUData.Y_Data.LinearAcc, Generic_IMUData.Z_Data.LinearAcc, Generic_IMUData.X_Data.AngularAcc, Generic_IMUData.Y_Data.AngularAcc, Generic_IMUData.Z_Data.AngularAcc);
 }
 
