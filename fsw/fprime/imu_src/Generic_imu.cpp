@@ -6,6 +6,7 @@
 
 #include "imu_src/Generic_imu.hpp"
 #include "FpConfig.hpp"
+#include <Fw/Log/LogString.hpp>
 
 
 namespace Components {
@@ -88,12 +89,14 @@ void Generic_imu :: REQUEST_HOUSEKEEPING_cmdHandler(FwOpcodeType opCode, U32 cmd
     if (status == OS_SUCCESS)
     {
       HkTelemetryPkt.DeviceCount++;
-      this->log_ACTIVITY_HI_TELEM("RequestHK command success\n");
+      Fw::LogStringArg log_msg("RequestHK command success\n");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
     }
     else
     {
       HkTelemetryPkt.DeviceErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("RequestHK command failed!\n");
+      Fw::LogStringArg log_msg("RequestHK command failed!\n");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
     }
   }
 
@@ -122,12 +125,14 @@ void Generic_imu :: REQUEST_DATA_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
     if (status == OS_SUCCESS)
     {
       HkTelemetryPkt.DeviceCount++;
-      this->log_ACTIVITY_HI_TELEM("RequestData command success\n");
+      Fw::LogStringArg log_msg("RequestData command success\n");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("RequestData command failed!\n");
+      Fw::LogStringArg log_msg("RequestData command failed!\n");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
     }
   }
   else
@@ -160,7 +165,8 @@ void Generic_imu :: NOOP_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
   status = GENERIC_IMU_CommandDevice(&Generic_IMUcan, GENERIC_IMU_DEVICE_NOOP_CMD);
 
   HkTelemetryPkt.CommandCount++;
-  this->log_ACTIVITY_HI_TELEM("NOOP SENT");
+  Fw::LogStringArg log_msg("NOOP SENT");
+  this->log_ACTIVITY_HI_TELEM(log_msg);
   this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
   this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
@@ -175,7 +181,8 @@ void Generic_imu :: RESET_COUNTERS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
   HkTelemetryPkt.DeviceCount = 0;
   HkTelemetryPkt.DeviceErrorCount = 0;
 
-  this->log_ACTIVITY_HI_TELEM("Reset Counters command successful!");
+  Fw::LogStringArg log_msg("Reset Counters command successful!");
+  this->log_ACTIVITY_HI_TELEM(log_msg);
   this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
   this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
   this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
@@ -210,18 +217,21 @@ void Generic_imu :: ENABLE_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
       {
         HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_ENABLED;
         HkTelemetryPkt.DeviceCount++;
-        this->log_ACTIVITY_HI_TELEM("Enable command success!");
+        Fw::LogStringArg log_msg("Enable command success!");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        this->log_ACTIVITY_HI_TELEM("Enable command failed to init CAN!");
+        Fw::LogStringArg log_msg("Enable command failed to init CAN!");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("Enable failed, already Enabled!");
+      Fw::LogStringArg log_msg("Enable failed, already Enabled!");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
     }
 
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
@@ -245,18 +255,21 @@ void Generic_imu :: ENABLE_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
       {
         HkTelemetryPkt.DeviceEnabled = GENERIC_IMU_DEVICE_DISABLED;
         HkTelemetryPkt.DeviceCount++;
-        this->log_ACTIVITY_HI_TELEM("Disable command success!");
+        Fw::LogStringArg log_msg("Disable command success!");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        this->log_ACTIVITY_HI_TELEM("Disable command failed to close CAN!");
+        Fw::LogStringArg log_msg("Disable command failed to close CAN!");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("Disable failed, already Disabled!");
+      Fw::LogStringArg log_msg("Disable failed, already Disabled!");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
     }
 
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
