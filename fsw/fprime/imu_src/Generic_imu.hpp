@@ -86,6 +86,16 @@ namespace Components {
         U32 cmdSeq
       ) override;
 
+      void updateData_handler(
+        const NATIVE_INT_TYPE portNum, //!< The port number
+        NATIVE_UINT_TYPE context //!< The call order
+      ) override;
+
+      void updateTlm_handler(
+        const NATIVE_INT_TYPE portNum, //!< The port number
+        NATIVE_UINT_TYPE context //!< The call order
+      ) override;
+
       void ENABLE_cmdHandler(
         FwOpcodeType opCode, 
         U32 cmdSeq

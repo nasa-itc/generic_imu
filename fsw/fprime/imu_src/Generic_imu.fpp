@@ -4,6 +4,15 @@ module Components {
 
         # One async command/port is required for active components
         # This should be overridden by the developers with a useful command/port
+
+        @ IMU output port
+        output port IMUout: IMUDataPort
+
+        @ Periodic Data IMU
+        async input port updateData: Svc.Sched
+
+        @ Periodic Tlm IMU
+        async input port updateTlm: Svc.Sched
         
         @ Component Enable State
         enum ActiveState {
