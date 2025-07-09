@@ -10,6 +10,9 @@ module Components {
 
         @ Periodic Data IMU
         async input port updateData: Svc.Sched
+
+        @ Periodic Tlm IMU
+        async input port updateTlm: Svc.Sched
         
         @ Component Enable State
         enum ActiveState {

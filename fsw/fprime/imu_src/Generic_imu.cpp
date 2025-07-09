@@ -117,6 +117,22 @@ void Generic_imu :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UIN
   this->IMUout_out(0, Generic_IMUData.X_Data.LinearAcc, Generic_IMUData.Y_Data.LinearAcc, Generic_IMUData.Z_Data.LinearAcc, Generic_IMUData.X_Data.AngularAcc, Generic_IMUData.Y_Data.AngularAcc, Generic_IMUData.Z_Data.AngularAcc);
 }
 
+void Generic_imu :: updateTlm_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+{
+  this->tlmWrite_X_Axis_LinearAcc(Generic_IMUData.X_Data.LinearAcc);
+  this->tlmWrite_X_Axis_AngularAcc(Generic_IMUData.X_Data.AngularAcc);
+  this->tlmWrite_Y_Axis_LinearAcc(Generic_IMUData.Y_Data.LinearAcc);
+  this->tlmWrite_Y_Axis_AngularAcc(Generic_IMUData.Y_Data.AngularAcc);
+  this->tlmWrite_Z_Axis_LinearAcc(Generic_IMUData.Z_Data.LinearAcc);
+  this->tlmWrite_Z_Axis_AngularAcc(Generic_IMUData.Z_Data.AngularAcc);
+  this->tlmWrite_ReportedComponentCount(Generic_IMUHK.DeviceCounter);
+  this->tlmWrite_DeviceStatus(Generic_IMUHK.DeviceStatus);
+  this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
+  this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+  this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
+  this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
+}
+
 // GENERIC_IMU_RequestData
 void Generic_imu :: REQUEST_DATA_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
 
