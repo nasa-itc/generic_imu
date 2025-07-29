@@ -35,14 +35,14 @@ namespace Nos3
         ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
         */
             std::string keya0;
-            keya0.append("SC[").append(std::to_string(_sc)).append("].AC.");
+            keya0.append("SC[").append(std::to_string(_sc)).append("].");
             std::string keya1(keya0), keya2(keya0), keyg0(keya0), keyg1(keya0), keyg2(keya0);
-            keya0.append("Accel[0].Acc");
-            keya1.append("Accel[1].Acc");
-            keya2.append("Accel[2].Acc");
-            keyg0.append("Gyro[0].Rate");
-            keyg1.append("Gyro[1].Rate");
-            keyg2.append("Gyro[2].Rate");
+            keya0.append("Accel[0].TrueAcc");
+            keya1.append("Accel[1].TrueAcc");
+            keya2.append("Accel[2].TrueAcc");
+            keyg0.append("Gyro[0].TrueRate");
+            keyg1.append("Gyro[1].TrueRate");
+            keyg2.append("Gyro[2].TrueRate");
 
             /* Parse 42 telemetry */
             _accelRates[0] = std::stof(_dp.get_value_for_key(keya0));
