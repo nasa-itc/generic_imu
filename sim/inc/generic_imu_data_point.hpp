@@ -13,6 +13,8 @@ namespace Nos3
         /* Constructors */
         Generic_imuDataPoint(double count);
         Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp);
+        Generic_imuDataPoint(double gyro_x, double gyro_y, double gyro_z, double accel_x, double accel_y, double accel_z);
+        ~Generic_imuDataPoint(void) {};
 
         /* Accessors */
         /* Provide the hardware model a way to get the specific data out of the data point */
@@ -30,7 +32,6 @@ namespace Nos3
         /* Disallow these */
         Generic_imuDataPoint(void) {};
         Generic_imuDataPoint(const Generic_imuDataPoint&) {};
-        ~Generic_imuDataPoint(void) {};
 
          // Private mutators
         inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
