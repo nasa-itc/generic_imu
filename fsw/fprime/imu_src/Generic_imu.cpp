@@ -6,6 +6,7 @@
 
 #include "imu_src/Generic_imu.hpp"
 #include "FpConfig.hpp"
+#include <Fw/Log/LogString.hpp>
 
 
 namespace Components {
