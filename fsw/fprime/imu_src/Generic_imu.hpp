@@ -57,7 +57,7 @@ namespace Components {
       //! Destroy Generic_imu object
       ~Generic_imu();
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Handler implementations for commands

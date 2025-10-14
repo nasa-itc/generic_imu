@@ -18,8 +18,8 @@ set(SOURCE_FILES
   "${CMAKE_CURRENT_LIST_DIR}/Generic_imu.fpp"
   "${CMAKE_CURRENT_LIST_DIR}/Generic_imu.cpp"
 
-  "${CMAKE_CURRENT_LIST_DIR}/../../shared/generic_imu_device.c" #need to fix undeclared errors
-  "${CMAKE_CURRENT_LIST_DIR}/../../../../../fsw/apps/hwlib/sim/src/nos_link.c"
+  # "${CMAKE_CURRENT_LIST_DIR}/../../shared/generic_imu_device.c" #need to fix undeclared errors
+  # "${CMAKE_CURRENT_LIST_DIR}/../../../../../fsw/apps/hwlib/sim/src/nos_link.c"
   
 )
 
@@ -30,8 +30,14 @@ set(SOURCE_FILES
 #     Add your dependencies here
 # )
 set(MOD_DEPS
+    Fw_Types
     ${ITC_Common_LIBRARIES}
     ${NOSENGINE_LIBRARIES}
 )
 
 register_fprime_module()
+
+target_sources(${FPRIME_CURRENT_MODULE} PRIVATE 
+  "${CMAKE_CURRENT_LIST_DIR}/../../shared/generic_imu_device.c"
+  "${CMAKE_CURRENT_LIST_DIR}/../../../../../fsw/apps/hwlib/sim/src/nos_link.c"
+)

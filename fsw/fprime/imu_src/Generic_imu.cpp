@@ -5,7 +5,8 @@
 // ======================================================================
 
 #include "imu_src/Generic_imu.hpp"
-#include "FpConfig.hpp"
+// #include "FpConfig.hpp"
+#include "Fw/FPrimeBasicTypes.hpp"
 #include <Fw/Log/LogString.hpp>
 
 
