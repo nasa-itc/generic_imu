@@ -114,7 +114,7 @@ void Generic_imu :: REQUEST_HOUSEKEEPING_cmdHandler(FwOpcodeType opCode, U32 cmd
   this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
 }
 
-void Generic_imu :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+void Generic_imu :: updateData_handler(const FwIndexType portNum, U32 context)
 {
   int32_t status = OS_SUCCESS;
   status = GENERIC_IMU_RequestData(&Generic_IMUcan, &Generic_IMUData);
@@ -128,7 +128,7 @@ void Generic_imu :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UIN
   }
 }
 
-void Generic_imu :: updateTlm_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+void Generic_imu :: updateTlm_handler(const FwIndexType portNum, U32 context)
 {
   GENERIC_IMU_RequestHK(&Generic_IMUcan, &Generic_IMUHK);
   this->tlmWrite_X_Axis_LinearAcc(Generic_IMUData.X_Data.LinearAcc);
