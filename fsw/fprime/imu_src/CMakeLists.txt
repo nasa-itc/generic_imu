@@ -7,19 +7,19 @@
 #
 ####
 #ITC Changes
-include_directories("../../shared")
-include_directories("../../standalone/") #device_cfg.h
-include_directories("../../../../../fsw/apps/hwlib/fsw/public_inc")
-include_directories("../platform_inc")
-include_directories("../../../../../fsw/apps/hwlib/sim/inc")
+# include_directories("../../shared")
+# include_directories("../../standalone/") #device_cfg.h
+# include_directories("../../../../../fsw/apps/hwlib/fsw/public_inc")
+# include_directories("../platform_inc")
+# include_directories("../../../../../fsw/apps/hwlib/sim/inc")
 
 
 set(SOURCE_FILES
   "${CMAKE_CURRENT_LIST_DIR}/Generic_imu.fpp"
   "${CMAKE_CURRENT_LIST_DIR}/Generic_imu.cpp"
 
-  "${CMAKE_CURRENT_LIST_DIR}/../../shared/generic_imu_device.c" #need to fix undeclared errors
-  "${CMAKE_CURRENT_LIST_DIR}/../../../../../fsw/apps/hwlib/sim/src/nos_link.c"
+  # "${CMAKE_CURRENT_LIST_DIR}/../../shared/generic_imu_device.c" #need to fix undeclared errors
+  # "${CMAKE_CURRENT_LIST_DIR}/../../../../../fsw/apps/hwlib/sim/src/nos_link.c"
   
 )
 
@@ -30,8 +30,22 @@ set(SOURCE_FILES
 #     Add your dependencies here
 # )
 set(MOD_DEPS
+    Fw_Types
     ${ITC_Common_LIBRARIES}
     ${NOSENGINE_LIBRARIES}
 )
 
 register_fprime_module()
+
+target_sources(${FPRIME_CURRENT_MODULE} PRIVATE 
+  "${CMAKE_CURRENT_LIST_DIR}/../../shared/generic_imu_device.c"
+  "${CMAKE_CURRENT_LIST_DIR}/../../../../../fsw/apps/hwlib/sim/src/nos_link.c"
+)
+
+target_include_directories(${FPRIME_CURRENT_MODULE} PRIVATE
+  "../../shared"
+  "../../standalone/"
+  "../../../../../fsw/apps/hwlib/fsw/public_inc"
+  "../platform_inc"
+  "../../../../../fsw/apps/hwlib/sim/inc"
+)
