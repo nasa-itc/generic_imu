@@ -18,6 +18,18 @@ namespace Nos3
         _gyroRates[2] = count;
     }
 
+    Generic_imuDataPoint::Generic_imuDataPoint(double gyro_x, double gyro_y, double gyro_z, double accel_x, double accel_y, double accel_z) :
+        _not_parsed(false)
+    {
+        _generic_imu_data_is_valid =  true;
+        _gyroRates[0] = gyro_x;
+        _gyroRates[1] = gyro_y;
+        _gyroRates[2] = gyro_z;
+        _accelRates[0] = accel_x;
+        _accelRates[1] = accel_y;
+        _accelRates[2] = accel_z;
+    }
+
     Generic_imuDataPoint::Generic_imuDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
         sim_logger->trace("Generic_imuDataPoint::Generic_imuDataPoint:  42 Constructor executed");

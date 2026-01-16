@@ -57,7 +57,7 @@ namespace Components {
       //! Destroy Generic_imu object
       ~Generic_imu();
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Handler implementations for commands
@@ -84,6 +84,16 @@ namespace Components {
       void NOOP_cmdHandler(
         FwOpcodeType opCode, 
         U32 cmdSeq
+      ) override;
+
+      void updateData_handler(
+        const FwIndexType portNum, //!< The port number
+        U32 context //!< The call order
+      ) override;
+
+      void updateTlm_handler(
+        const FwIndexType portNum, //!< The port number
+        U32 context //!< The call order
       ) override;
 
       void ENABLE_cmdHandler(
