@@ -38,7 +38,6 @@ def run_generic_imu_device_test():
         # Enable
         enable_generic_imu()
         
-        # Explicit calls added per device test conversion rules
         get_generic_imu_data()
         get_generic_imu_hk()
 
